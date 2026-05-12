@@ -1,0 +1,65 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Bash(findstr:*)",
+      "Bash(gh api:*)",
+      "Bash(gh pr comment:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr:*)",
+      "Bash(git add:*)",
+      "Bash(git checkout:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)",
+      "Bash(git merge-base:*)",
+      "Bash(git rm:*)",
+      "Bash(git tag:*)",
+      "Bash(netstat:*)",
+      "Bash(npm install)",
+      "Bash(npm run build:*)",
+      "Bash(npm run build:frontend:*)",
+      "Bash(npm run db:seed:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm run build:backend:*)",
+      "Bash(npm start)",
+      "Bash(npx ng build --configuration=development)",
+      "Bash(npx ng build:*)",
+      "Bash(npx ng generate:*)",
+      "Bash(npx tsc:*)",
+      "Bash(start chrome:*)",
+      "Bash(tasklist:*)",
+      "Bash(test:*)",
+      "Bash(time:*)",
+      "Bash(timeout /t 10)",
+      "Read(//c/JohnsStuff/Projects/**)",
+      "mcp__chrome-devtools__click",
+      "mcp__chrome-devtools__get_console_message",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__navigate_page",
+      "mcp__chrome-devtools__navigate_page_history",
+      "mcp__chrome-devtools__new_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__wait_for",
+      "mcp__render__list_services",
+      "mcp__render__get_service",
+      "mcp__render__list_deploys",
+      "mcp__render__get_deploy",
+      "mcp__render__list_logs",
+      "mcp__render__list_workspaces"
+    ],
+    "deny": [
+      "Bash(npm run test:deny)"
+    ],
+    "ask": [
+      "Bash(npm run test:ask)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "paypal",
+    "db"
+  ]
+}
