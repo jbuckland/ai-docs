@@ -182,6 +182,15 @@ Create `path/to/file.ts`:
 - ❌ Full class implementations when prose suffices
 - ❌ Redundant explanation of what TypeScript generics are
 
+---
+
+## AI Agent Artifact & Planning Workspace Rules
+
+- **Workspace-Only Artifacts:** All AI agent planning and tracking artifacts (such as `implementation_plan.md`, `task.md`, and `walkthrough.md`) must be written directly to the `docs/ai-artifacts/` directory inside this repository workspace, rather than using the system's default hidden AppData directories.
+- **Interactive Reviews via Git:** Writing plans directly to the repository allows the developer to review changes as normal Git diffs and provide annotations.
+- **Developer Annotations:** The developer will add inline reviews using the `{!annotation}` syntax in the workspace markdown files. The agent must read the workspace file, address the annotations, and update it in-place.
+- **AppData Redirects:** If the agent is prompted by the system to write files to the hidden AppData artifact directory, it should write a simple redirect message there pointing back to the workspace directory.
+
 ## Related Documentation
 
 See [jb-doc-standards.instructions.md](./jb-doc-standards.instructions.md) for general documentation standards.
