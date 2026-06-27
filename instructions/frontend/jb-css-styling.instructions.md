@@ -24,6 +24,11 @@
   color: @text-primary;                    // ❌ Compile-time only, no dark mode
   background-color: #ffffff;               // ❌ Hard-coded, breaks theming
   border: 1px solid --color-border;        // ❌ Missing var()
+
+  // ❌ NEVER add a hardcoded fallback inside var() — if a design token is
+  //    undefined, that is a design-system bug to fix, not a value to paper over.
+  background: var(--color-error-surface, #fff0f0);  // ❌ Hardcoded fallback
+  color: var(--color-success, #27ae60);             // ❌ Hardcoded fallback
 }
 
 // ❌ NEVER write this selector - it doesn't work
