@@ -164,6 +164,12 @@ git push --force-with-lease
 - ❌ Add AI attribution to commits
 - ❌ Use vague commit messages like "fix stuff" or "updates"
 
+## Versioning & Changelog Standards
+
+In repositories maintaining semantic versioning in `package.json` and a root `CHANGELOG.md`:
+- **Timing Rule:** **ONLY** bump the version in `package.json` (e.g. `0.1.1` → `0.1.2`) and add a description under `CHANGELOG.md` when preparing to push commits to `origin` or when opening a Pull Request.
+- **Intermediate Commits:** Do **NOT** bump the version on routine intermediate local commits.
+
 ## Git Commands Reference
 
 ```bash

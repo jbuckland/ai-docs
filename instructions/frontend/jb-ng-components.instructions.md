@@ -57,7 +57,7 @@ export class MyComponent {
 
 ## File Organization
 
-**REQUIRED:** Always use separate files:
+**REQUIRED:** Always use separate files linked via `templateUrl` and `styleUrl`:
 ```
 my-component/
   my-component.component.ts
@@ -66,7 +66,7 @@ my-component/
   my-component.component.service.ts
 ```
 
-**FORBIDDEN:** Never inline templates or styles.
+**FORBIDDEN:** Never use inline `template:` or inline `styles:`. Every component must have its own `.html` template and `.less` stylesheet.
 
 ## ViewItem Pattern
 
