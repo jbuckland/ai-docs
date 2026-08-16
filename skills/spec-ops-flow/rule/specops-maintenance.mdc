@@ -1,0 +1,14 @@
+---
+description: SpecOps Flow - route SpecOps Flow planning-doc edits to the spec-ops-flow skill
+globs: **/specops/**/*.md
+alwaysApply: false
+---
+
+# SpecOps Flow (maintenance hook)
+
+This rule loads when you edit a markdown file under a `specops/` directory (any depth).
+
+1. **Feature root:** Walk up from the edited file to the nearest ancestor directory that directly contains a `feature-*.md`. That is the file's feature root; maintenance is scoped to it.
+2. **Authority:** Read and follow the **spec-ops-flow** skill (`SKILL.md`), including `frontmatter-spec.md` and the skill's **Maintenance contract** section.
+
+The skill owns all sync logic, enums, and archive behavior. This rule only links "editing a SpecOps Flow doc" to that skill.
