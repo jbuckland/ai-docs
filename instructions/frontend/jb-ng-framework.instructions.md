@@ -166,6 +166,18 @@ export class ErrorInterceptor implements HttpInterceptor {
 }
 ```
 
+## Feature Directory Structure
+
+Maintain a clean, consistent folder hierarchy for all Angular features:
+- **Feature Root:** `src/app/features/<feature-name>/`
+- **Colocated Services:** Shared services and state managers for the feature must be colocated at the feature level (e.g. `src/app/features/<feature-name>/services/`), never buried in sub-component directories.
+- **Routes:** `<feature-name>.routes.ts` declared at the feature root.
+- **Components:** Sub-views and components live in dedicated child folders: `src/app/features/<feature-name>/components/<component-name>/`.
+
+## Vite Compilation & Path Mapping Gotchas
+
+- **NG0203 Error on `@angular/*` Aliases:** Avoid adding `@angular/*` path aliases to `tsconfig.json` `paths`. In Vite-based Angular setups, custom aliases to Angular core libraries cause dual-module instantiation, resulting in runtime `NG0203: inject() must be called from an injection context` exceptions.
+
 ## Related Documentation
 
 See [jb-ng-components.instructions.md](./jb-ng-components.instructions.md) for component patterns.

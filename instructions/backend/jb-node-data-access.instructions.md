@@ -2,20 +2,23 @@
 
 ## Naming Conventions
 
-1. **Class Naming**: `<DomainObject>DataAccess` (e.g., `UserDataAccess`, `FamilyDataAccess`)
-2. **File Naming**: `<domain-object>-data-access.ts` (kebab-case)
-3. **Method Naming**: Clear, descriptive names like `getById`, `getByIds`, `create`, `update`, `delete`
+1. **Class Naming**: `<DomainObject>Db` (e.g., `UserDb`, `FamilyDb`, `SessionDb`)
+2. **File Naming**: `<domain-object>.db.ts` (e.g., `user.db.ts`, `family.db.ts`)
+3. **Inheritance**: Extend `BasePromisesDb`
+4. **Method Naming**: Clear, descriptive names like `getById`, `findById`, `listAll`, `create`, `update`, `delete`
 
 ## Data Access Pattern
 
 ```typescript
-import { injectable } from 'tsyringe';
-import { BaseDataAccessPromises } from './BaseDataAccessPromises';
+import { injectable, inject } from 'tsyringe';
+import { Pool } from 'pg';
+import { DB_POOL_TOKEN } from '../core/container/container';
+import { BasePromisesDb } from './base-promises.db';
 import { User } from '../core/domain/user';
 
 @injectable()
-export class UserDataAccess extends BaseDataAccessPromises {
-  // Pool is automatically injected by BaseDataAccessPromises
+export class UserDb extends BasePromisesDb {
+  // Pool is managed by BasePromisesDb via DB_POOL_TOKEN injection
 
   async getById(userId: number): Promise<User | null> {
     const query = `

@@ -42,12 +42,15 @@ Body: {
   "status": "SUCCESS",
   "message": "Operation completed successfully",
   "data": {
-    // Response payload
+    // Response payload (MUST use null instead of undefined when absent)
   },
   "errors": [],
   "timestamp": "2025-10-08T10:30:00Z"
 }
 ```
+
+> [!IMPORTANT]
+> **API Response Data Type (`null` vs `undefined`):** `ApiResponse.data` MUST use `null` instead of `undefined` when data is absent. Standard JSON serialization strips `undefined` properties or converts them unexpectedly; an explicit `null` guarantees deterministic cross-platform serialization and unambiguously signals the intentional absence of a payload.
 
 ### Service Method Pattern
 

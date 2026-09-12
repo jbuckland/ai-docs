@@ -186,8 +186,9 @@ Create `path/to/file.ts`:
 
 ## AI Agent Artifact & Planning Workspace Rules
 
-- **Workspace-Only Artifacts:** All AI agent planning and tracking artifacts must be written directly to the `ai-artifacts/` or `docs/ai-artifacts/` directory inside this repository workspace, rather than using the system's default hidden AppData directories.
-  - Implementation plans must be named appropriately, describing the feature and prefixed with `impl-plan-` (e.g., `impl-plan-matching-game.md`).
+- **Workspace-Only Artifacts:** All AI agent planning, architectural designs, and tracking artifacts must be written directly to the project's designated artifacts or planning folder (e.g., `ai-artifacts/`, `docs/ai-artifacts/`, or the project's documentation directory) inside the repository workspace as persistent, version-controlled markdown files.
+  - **DO NOT Use Built-in IDE Artifacts:** Do NOT rely on or restrict implementation plans to internal built-in agent memory artifacts (such as `implementation_plan.md` in the agent's internal AppData directory).
+  - Implementation plans must be named descriptively and prefixed with `implementation-plan-` or `impl-plan-` (e.g., `implementation-plan-matching-game.md`).
   - Tasks and walkthroughs should follow a similar descriptive pattern (e.g., `task-matching-game.md`, `walkthrough-matching-game.md`).
 - **Interactive Reviews via Git:** Writing plans directly to the repository allows the developer to review changes as normal Git diffs and provide annotations.
 - **Developer Annotations:** The developer will add inline reviews using the `{!annotation}` syntax in the workspace markdown files. The agent must read the workspace file, address the annotations, and update it in-place.

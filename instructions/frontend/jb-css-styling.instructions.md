@@ -1,171 +1,126 @@
 # CSS/LESS Styling Patterns
 
-## Critical Rule: Always Use CSS Custom Properties for Colors
+## Critical Rules
 
-### ✅ DO THIS - Always
+### 1. Component Inventory & "Lift-First" Workflow (Step 1)
+Before authoring any CSS for a new component or feature:
+1. **Inventory Existing Primitives**: Check the shared component styles directory (e.g. `src/styles/components/` or equivalent) to see what UI building blocks already exist (cards, buttons, avatars, badges, status pills, toggle switches, tables).
+2. **Lift Reusable Primitives**: If a UI pattern (e.g. status indicator, avatar badge, toggle switch, action button variant) is or will be used in more than one place, declare it in the shared component directory and consume it via shared class names. Do NOT recreate duplicate styling inside local component files.
 
+---
+
+### 2. Tokenized Custom Properties & Zero Fallbacks
+All theme colors, surfaces, borders, and tokenized dimensions MUST use CSS custom properties (`var(--token)`).
+
+**NEVER** add a hardcoded fallback value inside `var(--token)`. If a design token is undefined or missing, that is a design system bug to fix in `variables.less` (or equivalent), not a value to paper over in local components.
+
+#### ✅ DO THIS
 ```less
 .my-component {
-  color: var(--color-text-primary);
-  background-color: var(--color-background-primary);
-  border: 1px solid var(--color-border);
+  color: var(--text-primary);
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-primary);
+  margin-bottom: var(--space-6);
 
   &:hover {
-    background-color: var(--color-background-secondary);
+    background-color: var(--surface-hover);
     color: var(--color-primary);
   }
 }
 ```
 
-### ❌ DON'T DO THIS - Never
-
+#### ❌ NEVER DO THIS
 ```less
 .my-component {
-  color: @text-primary;                    // ❌ Compile-time only, no dark mode
-  background-color: #ffffff;               // ❌ Hard-coded, breaks theming
-  border: 1px solid --color-border;        // ❌ Missing var()
+  // ❌ Hardcoded values break theming
+  color: @text-primary;                                      // Compile-time only, no dark mode
+  background-color: #ffffff;                                 // Hardcoded hex
+  border: 1px solid --border-primary;                        // Missing var()
 
-  // ❌ NEVER add a hardcoded fallback inside var() — if a design token is
-  //    undefined, that is a design-system bug to fix, not a value to paper over.
-  background: var(--color-error-surface, #fff0f0);  // ❌ Hardcoded fallback
-  color: var(--color-success, #27ae60);             // ❌ Hardcoded fallback
-}
-
-// ❌ NEVER write this selector - it doesn't work
-.dark .dark-mode & {
-  color: @dark-text-primary;               // ❌ .dark-mode class doesn't exist
+  // ❌ NEVER add fallbacks inside var()
+  background: var(--color-error-subtle, #fff0f0);            // Hardcoded fallback
+  color: var(--color-success, #27ae60);                      // Hardcoded fallback
+  margin-bottom: var(--space-6, 1.5rem);                     // Hardcoded fallback
+  border: 1px solid var(--border-primary, rgba(0,0,0,0.1));  // Hardcoded fallback
 }
 ```
 
-## LESS Preprocessor Usage
+---
 
-### Component Styling
+### 3. Local vs. Global CSS Scope Boundaries
+- **Shared / Global Styles** (`src/styles/components/` or equivalent): Provide the visual appearance of reusable UI building blocks (cards, buttons, pills, avatars, tables, switches).
+- **Component-Specific Styles** (`*.component.less`): Should **only** declare layout positioning (flexbox/grid flow, gap) and structural geometry unique to that specific component.
+- **Unique & Single-Use Geometry**: When a component has a dimension or geometric constraint that is strictly unique and will not be reused elsewhere (e.g. `min-width: 260px`, `max-width: 540px`), define it directly in the local stylesheet without creating unnecessary design tokens.
+- **Spacing & Display Density**: In applications that utilize tokenized spacing/density scales (e.g. `--space-*`, `--card-padding`, `--table-row-padding-y`), use those tokens for consistency and responsive density adaptability.
 
-**REQUIRED:** Always use separate LESS files for component styles.
+---
 
-```
-my-component/
-  my-component.component.ts
-  my-component.component.html
-  my-component.component.less  // ✅ Separate file
-```
+### 4. Strict Ban on Specificity Hacks & Deep Nesting
+- ❌ **No `!important`**: Never use `!important` to force styling. Fix specificity or selector structure instead.
+- ❌ **No Deep Nesting**: Do not nest LESS selectors more than 3 levels deep.
 
-**FORBIDDEN:** Never use inline styles.
+---
 
-### LESS Features
+### 5. Component LESS Variable Scope & Explicit Imports
+Angular compiles component styles in isolated contexts and does **not** inherit compile-time LESS variables automatically.
+- If a component stylesheet references compile-time LESS variables or mixins (e.g. `@variables`, `@screen-tablet`), it MUST explicitly import the variable definition file:
+  ```less
+  @import 'src/styles/variables.less';
+  ```
+- Failure to import causes silent build-time compile errors or fallback failures during production builds.
+
+---
+
+## Component LESS Organization Example
 
 ```less
-// Variables (for non-color values)
-@spacing-sm: 8px;
-@spacing-md: 16px;
-@spacing-lg: 24px;
-
-@font-size-sm: 12px;
-@font-size-base: 14px;
-@font-size-lg: 16px;
-
-// Nesting
-.card {
-  padding: @spacing-md;
-  
-  &__header {
-    font-size: @font-size-lg;
-    margin-bottom: @spacing-sm;
-  }
-  
-  &__body {
-    font-size: @font-size-base;
-  }
-  
-  &:hover {
-    box-shadow: var(--shadow);
-  }
+// my-feature.component.less
+:host {
+  display: block;
 }
 
-// Mixins
-.flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.button {
-  .flex-center();
-  padding: @spacing-sm @spacing-md;
-}
-```
-
-## CSS Organization
-
-### Component-Specific Styles
-
-**IMPORTANT:** Component style files should only declare styles that are unique to that component. If a style already exists in the global styles file, or SHOULD exist in the global styles file, reference it instead of duplicating it.
-
-```less
-// my-component.component.less
-.my-component {
-  // Layout
+// Local layout container
+.feature-container {
   display: flex;
   flex-direction: column;
-  gap: @spacing-md;
-  
-  // Colors (always use CSS custom properties)
-  background-color: var(--color-background-primary);
-  color: var(--color-text-primary);
-  
-  // Typography
-  font-size: @font-size-base;
-  line-height: 1.5;
-  
-  // Spacing
-  padding: @spacing-md;
-  margin-bottom: @spacing-lg;
-  
-  // Nested elements (component-specific only)
-  .header {
-    font-weight: 600;
-    color: var(--color-text-primary);
-  }
-  
-  .content {
-    flex: 1;
-  }
+  gap: var(--space-4);
+  max-width: var(--max-content-width);
+  margin: 0 auto;
+}
+
+// Unique single-use component geometry
+.search-sidebar {
+  min-width: 260px;
+  flex-shrink: 0;
+}
+
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
 }
 ```
+
+---
 
 ## Responsive Design Patterns
 
 ```less
-// Mobile-first approach
-.component {
-  padding: @spacing-sm;
-  
-  // Tablet
-  @media (min-width: 768px) {
-    padding: @spacing-md;
-  }
-  
-  // Desktop
-  @media (min-width: 1024px) {
-    padding: @spacing-lg;
-  }
-}
-
-// Breakpoint mixins
+// Breakpoints
 @mobile: ~"(max-width: 767px)";
 @tablet: ~"(min-width: 768px) and (max-width: 1023px)";
 @desktop: ~"(min-width: 1024px)";
 
-.component {
-  @media @mobile {
-    font-size: @font-size-sm;
-  }
+.feature-container {
+  padding: var(--space-3);
   
   @media @desktop {
-    font-size: @font-size-lg;
+    padding: var(--space-6);
   }
 }
 ```
+
+---
 
 ## Accessibility in CSS
 
@@ -190,43 +145,23 @@ my-component/
   white-space: nowrap;
   border-width: 0;
 }
-
-// High contrast mode
-@media (prefers-contrast: high) {
-  .button {
-    border: 2px solid var(--color-border-dark);
-  }
-}
-
-// Reduced motion
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-}
 ```
 
-## Best Practices
+---
 
-### DO
-- ✅ Use CSS custom properties for all colors
-- ✅ Use LESS variables for spacing, font sizes, and other non-color values
-- ✅ Use semantic class names
-- ✅ Use separate LESS files for components
-- ✅ Mobile-first responsive design
-- ✅ Include focus styles for accessibility
+## Best Practices Checklist
 
-### DON'T
-- ❌ Hard-code color values
-- ❌ Use inline styles
-- ❌ Write dark mode selectors manually
-- ❌ Duplicate styles in multiple files
-- ❌ Use `!important` unless absolutely necessary
-- ❌ Nest selectors more than 3 levels deep
-- ❌ Use overly specific selectors
+### ✅ DO
+- Check shared style directories before creating local component styles.
+- Lift multi-use UI primitives (cards, badges, avatars, buttons, switches) to shared global stylesheets.
+- Use CSS custom properties (`var(--token)`) for all colors and theme surfaces.
+- Use tokenized spacing/density properties (`var(--space-*)`, `var(--card-padding)`) when available in the application.
+- Keep component `.less` files focused on local layout and component-specific geometry.
+- Include focus styles for accessibility.
 
-## Related Documentation
-
-See project-specific theming documentation for available CSS custom properties and design tokens.
+### ❌ NEVER
+- Include fallback values in `var(--token, fallback)`.
+- Hardcode color hex/rgb/hsl values.
+- Duplicate common UI patterns (switches, avatars, status pills) across multiple component `.less` files.
+- Use `!important`.
+- Nest selectors more than 3 levels deep.

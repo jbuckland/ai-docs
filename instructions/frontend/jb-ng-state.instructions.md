@@ -118,6 +118,13 @@ const state$ = this._store.select(selector).pipe(takeUntil(this._onDestroy$));
 this.state = toSignal(state$, { initialValue: initialState() });
 ```
 
+## State Service Pattern (Reactive Bridge)
+
+State services act as the reactive-to-signal bridge in zoneless Angular applications:
+- **API Streams:** Subscribe directly to HTTP/API observables inside state services or convert using `toSignal()`.
+- **Signal State:** Expose readonly signals (`Signal<T>`) to components while managing internal writable signals (`WritableSignal<T>`).
+- **Component Consumption:** Components consume signals directly in templates, keeping UI views fully declarative and zoneless.
+
 ## Anti-Patterns
 
 **FORBIDDEN:**

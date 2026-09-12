@@ -170,6 +170,22 @@ In repositories maintaining semantic versioning in `package.json` and a root `CH
 - **Timing Rule:** **ONLY** bump the version in `package.json` (e.g. `0.1.1` → `0.1.2`) and add a description under `CHANGELOG.md` when preparing to push commits to `origin` or when opening a Pull Request.
 - **Intermediate Commits:** Do **NOT** bump the version on routine intermediate local commits.
 
+## Pull Request Creation & Merging Policy
+
+- **Human Authorization Required:** AI agents must **NEVER** create or merge Pull Requests automatically using GitHub CLI (`gh`), automated API tools, or MCP tools without explicit, direct user instructions to do so.
+- **Merge Restrictions:** Merges into protected branches (e.g. `staging`, `main`) must always be handled via human review and Pull Requests. Agents must never merge branches locally into protected branches.
+
+## Merge Conflict Resolution for Formatted Files
+
+When rebasing or merging, if a conflict occurs on a file where the conflict is purely due to formatting/whitespace differences rather than actual logic changes:
+- Check out the base/current branch's version:
+  ```bash
+  git checkout --ours <filepath>
+  git add <filepath>
+  ```
+  *(Note: during a `git rebase`, `--ours` refers to the upstream target branch and `--theirs` refers to the incoming feature commits; verify branch roles before checkout).*
+- Re-run the project's formatting tools (or format scripts) to reapply clean formatting consistently.
+
 ## Git Commands Reference
 
 ```bash

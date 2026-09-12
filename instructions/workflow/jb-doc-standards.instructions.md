@@ -137,7 +137,8 @@ const pattern = usePattern();
 
 ### Tables
 
-**IMPORTANT:** Always align table columns in the raw markdown source.
+- **Width Threshold:** Markdown tables that are wider than 120 characters MUST be reformatted as structured bulleted lists or subheadings to ensure readability in standard editors.
+- **Column Alignment:** When tables are used (under 120 characters wide), always align table columns in the raw markdown source using monospaced padding.
 
 ```markdown
 | Feature | Status     | Notes         |

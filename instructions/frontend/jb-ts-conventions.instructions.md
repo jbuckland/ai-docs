@@ -348,3 +348,10 @@ class DataStore<T> {
 - Use generics for reusable, type-safe code
 - Name generic parameters descriptively (T for type, K for key, V for value)
 - Constrain generics when needed (`<T extends BaseType>`)
+
+---
+
+## Compiler Hygiene & Unused Symbols
+
+- **`noUnusedLocals` & `noUnusedParameters`:** Strict compiler checks are active across projects. Any variables, function arguments, or imports that become unused following refactoring MUST be pruned immediately.
+- **Zero Dead Imports:** Always remove orphaned import statements, unused interfaces, and dead constants before completing changes to prevent build failures in strict CI environments.
