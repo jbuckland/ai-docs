@@ -1,86 +1,132 @@
 ---
 name: spec-ops-flow
-description: SpecOps Flow — spec-driven development for feature planning docs. Author and maintain the WHAT feature plan, HOW implementation runbooks and contracts, research notes, a decisions log, status tracking, and archive. Use when planning or building a feature through planning docs, creating a feature plan or runbook, asking what work is left, archiving or superseding a plan, or when a doc lives under a `specops/` directory.
+description: SpecOps Flow — spec-driven development for feature planning docs. Author and maintain durable system specs (WHAT), change plans (CHANGE), implementation runbooks (HOW), and decision logs (WHY). Use when planning or building through planning docs, writing a spec or plan, creating runbooks, asking what work is left, graduating a plan into a domain spec, archiving, or when a doc lives under a `specops/` directory.
 ---
 
 # SpecOps Flow
 
-Spec-driven development flow for feature planning docs. One feature is one folder that separates WHAT (intent) from HOW (execution) and keeps them honest as the work proceeds. The flow is feature-agnostic and self-contained: this skill folder holds everything it needs.
+Spec-driven development flow for feature planning docs. Separates present reality (WHAT), proposed change (CHANGE), technical execution (HOW), and historical rationale (WHY). The flow is feature-agnostic and self-contained: this skill folder holds everything it needs.
 
 **Naming:** Official name **SpecOps Flow**; shorthand **SpecOps** in prose; filesystem marker `specops/` (skill id `spec-ops-flow`). The skill folder name deliberately differs from the `specops/` marker so the skill's own docs never match its own activation glob and self-manage.
 
-**Principles:** This is spec-driven, but intent lives in prose in the feature plan, not in a requirement-delta grammar or a validator CLI. Rules below describe what agents should recognize by meaning (a runbook, a stalled item, a feature root), not literal filename or token matching.
+**Principles:** This is spec-driven, but intent lives in prose, not in a requirement-delta grammar or a validator CLI. Rules below describe what agents should recognize by meaning (a runbook, a stalled item, a plan root), not literal filename or token matching. Living specs use timeless present tense; change plans use comparative/delta voice.
+
+## The four pillars
+
+Every document answers one of four sequential questions:
+
+```text
+1. WHAT     "What is it now?"              spec.md (current system; optional for one-offs)
+   ↓
+2. CHANGE   "Change it to be what?"        plan-*.md or plan.md (problem, delta, scope)
+   ↓
+3. HOW      "How are we going to do it?"   00-work-breakdown.md, N-00-*.md, N-xx-*.md (runbooks)
+   ↓
+4. WHY      "Why did we make the choices?" decisions.md (append-only log)
+```
+
+| Pillar | File | Voice |
+| --- | --- | --- |
+| WHAT | `spec.md` | Timeless present tense: "This is how the system works." |
+| CHANGE | `plan-*.md` or `plan.md` | Comparative/delta: "Because of X, we are changing Y to Z." |
+| HOW | `0-0-...`, `N-00-...`, `N-xx-...` | Imperative, step-by-step |
+| WHY | `decisions.md` | Append-only: `Date \| Status \| Summary` |
 
 ## Activation: the specops/ directory
 
-- **Managed docs:** Any markdown file whose path contains a `specops` directory segment is SpecOps-managed, at any depth (`.../specops/dnipro4/agent-wo-create/...`, `.../specops/banana-feature/...`). One `specops/` directory can hold many features.
-- **Feature root:** The folder that owns a doc's `feature-*.md`, `implementation/`, `decisions.md`, and `archive/`. Find it by walking up from the edited file to the **nearest** ancestor directory that directly contains a `feature-*.md`. Everything below that folder belongs to that feature. While bootstrapping a brand-new feature, the agent is creating that folder and its `feature-*.md` together, so no separate marker file is needed.
-- **No marker, no script:** being under `specops/` is the gate; the nearest `feature-*.md` is how you locate the root.
-  
-- **Nested features:** A deeper folder with its own `feature-*.md` is a **separate** feature root. For a file inside it, the **nearest** `feature-*.md` on the walk up wins. That scopes maintenance:
-  - **Feature plan sync** uses that root's `feature-*.md`, not a parent's.
-  - **`decisions.md` / `readme.md`** are the ones at that root only.
-  - **Status scans** include only `implementation/` under that root.
-  - **Upward/downward propagation** does not cross into a parent or sibling feature.
-  - Parent and child are independent features; link between them in prose if needed, not shared frontmatter.
-  
+- **Managed docs:** Any markdown file whose path contains a `specops` directory segment is SpecOps-managed, at any depth. One `specops/` directory can hold many plans and domains.
+- **Plan root:** Walk up from the edited file to the **nearest** ancestor directory that directly contains `plan-*.md` or `plan.md`. That folder scopes runbooks, work breakdown, plan-local `decisions.md`, and plan-local `archive/`. While bootstrapping a new plan, the agent is creating that folder and its plan doc together.
+- **Domain root:** Walk up to the **nearest** ancestor containing `spec.md`. If you reach `specops/` without encountering `spec.md`, there is **no domain root** (standalone mode).
+- **Nested plans:** A deeper folder with its own plan doc is a **separate** plan root. The nearest plan doc on the walk up wins. Domain `spec.md` and domain `decisions.md` belong to the domain root only; plan-local docs belong to the plan root only. Upward/downward propagation does not cross plan or domain boundaries without explicit graduation (see `guides/archive.md`).
+- **No marker, no script:** being under `specops/` is the gate; plan and domain roots are found by walking up.
+
 ## The loop
 
-`explore` -> `feature plan (WHAT)` -> `research` -> `runbooks (HOW) + contracts` -> `build` -> `verify` -> `ship / freeze` -> `archive on pivot`
+`explore` -> `plan (CHANGE)` or `spec (WHAT)` -> `research` -> `runbooks (HOW)` -> `build` -> `verify` -> `ship / graduate / archive`
 
-## Feature folder shape
+## Structural shapes
 
-A feature folder lives under a `specops/` directory (e.g. `.../specops/dnipro4/agent-wo-create/`). Being under `specops/` is what makes it SpecOps-managed.
+### Shape A: standalone one-off (no `spec.md`, no `readme.md`)
+
+Best for quick tweaks, spikes, brownfield prototyping. Maximum velocity, zero boilerplate.
 
 ```text
-<feature>/
-  readme.md                    entrypoint: purpose, links, "implement next"
-  feature-*.md                 WHAT plan (status frontmatter)
-  decisions.md                 append-log: Date | Status | Summary
-  research/                    facts-only notes (see Research below)
-  implementation/
-    0-0-work-breakdown.md      repos, groups, sequencing, feature flag
-    N-00-*.md                  group index (derived status column)
-    N-xx-*.md                  turn-sized runbooks (flat under implementation/, or grouped in a subfolder)
-  archive/                     superseded/abandoned docs, kept for history
-  ```
+specops/<plan>/                    or  specops/plans/<plan>/
+  plan-<name>.md                   CHANGE (and combined WHAT for one-offs)
+  decisions.md                     WHY: tactical choices during build
+  0-0-work-breakdown.md            HOW: sequencing and groups
+  N-00-*.md                        HOW: group index (derived status column)
+  N-xx-*.md                        HOW: turn-sized runbooks
+  research/                        optional facts-only notes
+  archive/                         optional shelved docs
+```
 
-A group is a set of related runbooks sharing the same `N` number, identified by the `N-` prefix on filenames. Flat is the default: runbooks and their group index live as sibling files directly under `implementation/`. A per-group subfolder is an optional escape hatch for when one group's docs pile up (for example `implementation/2-ai-backend/2-00-*.md` plus its runbooks); the status scan finds runbooks wherever they sit under `implementation/`, flat or nested. Additional HOW docs (for example contract baselines) are fine when the agent adds them; SpecOps does not require a fixed filename beyond the conventions above.
+### Shape B: domain area (with `spec.md`)
+
+Best for core subsystems that endure across iterations (`callings`, `people`, `story-time`).
+
+```text
+specops/<domain>/                  DOMAIN ROOT
+  readme.md                        entrypoint and navigation (from templates/domain-readme.md)
+  spec.md                          WHAT: authoritative current system description
+  decisions.md                     WHY: domain-wide architectural rules and policies
+  plans/
+    <initiative>/                  SELF-CONTAINED PLAN (Shape A inside)
+      plan-<name>.md
+      decisions.md                 WHY: sprint-specific tactical choices
+      0-0-work-breakdown.md
+      N-00-*.md
+      N-xx-*.md
+  archive/
+    <initiative>/                  retired initiative time-capsules
+  research/                        optional domain-level facts
+```
+
+```text
+specops/plans/                     ONE-OFF / UNGROUPED DRAWER
+  <plan>/                          standalone Shape A plans
+```
+
+**Isomorphic plan folders:** The internal structure of a standalone plan is identical to a plan nested inside a domain. Moving a plan into `<domain>/plans/` is a zero-friction folder move with zero broken links.
+
+**Runbook placement:** HOW docs live directly in the plan folder. A **group** is a set of related runbooks sharing the same `N` number. Flat is the default: runbooks and their group index are sibling files in the plan folder. A per-group subfolder is an optional escape hatch when one group's docs pile up; the status scan finds runbooks wherever they sit under the plan root.
 
 ## Routing (read the guide for the task)
 
 | Task | Guide | Template(s) |
 | --- | --- | --- |
-| Author or bootstrap the WHAT plan | [guides/feature-plan.md](guides/feature-plan.md) | [templates/feature-plan.md](templates/feature-plan.md), [templates/feature-readme.md](templates/feature-readme.md), [templates/decisions.md](templates/decisions.md) |
+| Author or maintain a durable system spec (WHAT) | [guides/spec.md](guides/spec.md) | [templates/spec.md](templates/spec.md) |
+| Author or bootstrap a change plan (CHANGE) | [guides/plan.md](guides/plan.md) | [templates/plan.md](templates/plan.md), [templates/decisions.md](templates/decisions.md) |
+| Bootstrap a domain | [guides/spec.md](guides/spec.md) | [templates/domain-readme.md](templates/domain-readme.md), [templates/spec.md](templates/spec.md) |
 | Author HOW runbooks, contracts, group index | [guides/runbook.md](guides/runbook.md) | [templates/runbook.md](templates/runbook.md), [templates/group-index.md](templates/group-index.md) |
 | "What's left?" | [guides/status.md](guides/status.md) | — |
-| Pivot, supersede, or archive a doc | [guides/archive.md](guides/archive.md) | — |
+| Graduate, pivot, supersede, or archive | [guides/archive.md](guides/archive.md) | — |
 
 ## Research
 
-Plain markdown under `research/`. No separate guide.
+Plain markdown under `research/` at plan or domain level. No separate guide.
 
-- **Belongs here:** Facts gathered during explore (API behavior, file paths, ticket excerpts, spike outcomes) that resolve open questions or `{! }` annotations in the feature plan.
-- **Does not belong here:** Decisions (use `decisions.md`), HOW steps (use runbooks), or duplicate prose that should live in the feature plan.
-- **Naming:** Descriptive filenames (`api-surface.md`, `flag-inventory.md`). Link from the feature plan's Open Questions or System Context when relevant.
+- **Belongs here:** Facts gathered during explore (API behavior, file paths, ticket excerpts, spike outcomes) that resolve open questions or `{! }` annotations.
+- **Does not belong here:** Decisions (use `decisions.md`), HOW steps (use runbooks), or duplicate prose that belongs in `spec.md` or the plan.
+- **Naming:** Descriptive filenames (`api-surface.md`, `flag-inventory.md`). Link from the plan or spec when relevant.
 
 ## Frontmatter
 
-Closed schema; full definitions and the enum table live in `frontmatter-spec.md` (the single authority). Three keys only: `status`, `updated`, `notes`.
+Closed schema per document type; full definitions live in `frontmatter-spec.md` (the single authority). Plans and runbooks carry `status`; `spec.md` does not.
 
 ## Maintenance contract
 
-When the maintenance rule activates for a file under a `specops/` directory, keep docs correct automatically. Do not wait to be asked, and never leave the WHAT and the HOW silently disagreeing. Autofix by default: make corrective edits in the same turn, then report what changed. Do not stop to ask permission for routine sync upkeep, including keeping the `readme.md` "Implement next" pointer current as work finishes. One exception: editing the review-gated WHAT (`feature-*.md`) needs a one-line confirmation first (see **Upward propagation**).
+When the maintenance rule activates for a file under a `specops/` directory, keep docs correct automatically. Do not wait to be asked, and never leave the CHANGE and the HOW silently disagreeing. Autofix by default: make corrective edits in the same turn, then report what changed. Do not stop to ask permission for routine sync upkeep, including keeping domain `readme.md` "Implement next" pointers current as work finishes. One exception: editing the review-gated CHANGE doc (`plan-*.md` or `plan.md`) or the authoritative WHAT (`spec.md`) needs a one-line confirmation first (see **Upward propagation**).
 
 ### Frontmatter
 
-- Closed schema only (`status`, `updated`, `notes`). Do not invent keys or values outside the enum in `frontmatter-spec.md`. Bump `updated` whenever `status` changes.
+- Closed schema only. Do not invent keys or values outside `frontmatter-spec.md`. Bump `updated` whenever `status` changes on plans and runbooks; bump `updated` on `spec.md` whenever the described system changes.
 
-### Keep WHAT and HOW in sync
+### Keep CHANGE, WHAT, and HOW in sync
 
-- **Upward propagation:** While editing a HOW doc under `implementation/`, if you find the feature plan's WHAT is wrong or incomplete, do not silently rewrite it. Ask a one-line confirmation that names the change (for example: `Runbook switched red to blue. OK to update the feature plan to match?`). On approval, edit `feature-*.md` at the **same feature root** and add a `decisions.md` entry explaining why. Routine sync (frontmatter, status, group index) still autofixes without asking.
-- **Downward propagation:** If the feature plan's intent changes, flag or fix runbooks and contracts it invalidates under that root.
-- **Honesty rule:** A feature plan with `status: in-progress` must describe the current intended WHAT. Drift is a defect to fix now.
+- **Upward propagation:** While editing a HOW doc, if you find the plan's CHANGE scope or the domain `spec.md` is wrong or incomplete, do not silently rewrite it. Ask a one-line confirmation that names the change. On approval, edit the plan or `spec.md` at the appropriate root and add a `decisions.md` entry explaining why. Routine sync (frontmatter, status, group index) still autofixes without asking.
+- **Downward propagation:** If a plan's intent changes, flag or fix runbooks it invalidates under that plan root.
+- **Honesty rule:** A plan with `status: in-progress` must describe the current intended CHANGE. Drift is a defect to fix now. A `spec.md` must describe current production reality in present tense.
 
 ### Track state, don't duplicate it
 
@@ -88,15 +134,17 @@ When the maintenance rule activates for a file under a `specops/` directory, kee
 - When a runbook's lifecycle changes (done, deferred, superseded), update `status`, `updated`, and put defer/supersede detail in `notes` when needed.
 - The group index (`N-00`) status column is a **derived view**: refresh it by scanning runbook `status:` values in that group. Do not maintain a second source of truth for status text.
 
-### Pivots and superseding: archive, never delete
+### Pivots, graduation, and superseding: archive, never delete
 
 - When a plan or runbook is abandoned or replaced, move it into `archive/`. Do not delete it.
-- Set the archived doc's frontmatter per `frontmatter-spec.md`, and follow `guides/archive.md` for the full workflow (banner, index cleanup, decisions entry).
-- Append `decisions.md`: what was shelved, why, and a link to the archived doc.
+- When a domain initiative finishes, follow the **domain graduation flow** in `guides/archive.md`: update `spec.md`, log domain-wide decisions, move `plans/<name>/` to `archive/<name>/`.
+- Set archived doc frontmatter per `frontmatter-spec.md`, and follow `guides/archive.md` for the full workflow.
 
 ### Record decisions
 
-- Log meaningful decisions, pivots, and defers in `decisions.md` (prose append-log with `Date | Status | Summary`). Not frontmatter.
+- **Plan-level** `decisions.md`: tactical implementation choices, bug workarounds, component-local decisions.
+- **Domain-level** `decisions.md`: subsystem architectural rules, data model constraints, cross-plan policies.
+- Log meaningful decisions, pivots, and defers as a prose append-log (`Date | Status | Summary`). Not frontmatter.
 
 ### Boundaries
 
@@ -120,15 +168,16 @@ spec-ops-flow/
   rule/
     specops-maintenance.mdc  minimal hook (install into .cursor/rules/)
   guides/
-    feature-plan.md          authoring + bootstrap guide for the WHAT plan
+    spec.md                  authoring + maintenance guide for durable WHAT specs
+    plan.md                  authoring + bootstrap guide for CHANGE plans
     runbook.md               authoring guide for HOW runbooks, contracts, group index
     status.md                "what's left?" scan logic
-    archive.md               pivot / supersede / archive workflow
+    archive.md               graduation, pivot, supersede, archive workflow
   templates/
-    feature-plan.md
+    spec.md
+    plan.md
     runbook.md
     group-index.md
     decisions.md
-    feature-readme.md
-    ```
-
+    domain-readme.md
+```

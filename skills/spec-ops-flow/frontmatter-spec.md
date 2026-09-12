@@ -4,38 +4,65 @@ Single authority for the YAML frontmatter SpecOps Flow supports. The maintenance
 
 **Closed schema:** only the keys listed below are supported. Do not invent new keys. A `status` value outside the four-value enum is a defect to fix or flag.
 
-**Scope:** applies to any planning markdown file under a `specops/` directory. A file's feature root is the nearest ancestor directory containing a `feature-*.md`. See `SKILL.md` for activation and nested roots.
+**Scope:** applies to any planning markdown file under a `specops/` directory. A file's **plan root** is the nearest ancestor containing `plan-*.md` or `plan.md`. A file's **domain root** is the nearest ancestor containing `spec.md`. See `SKILL.md` for activation and nested roots.
 
 ---
 
-## 1. Planning doc frontmatter (one shape)
+## 1. Document types
 
-Every SpecOps Flow planning doc uses the same three keys:
+### `spec.md` (WHAT — durable system spec)
+
+No lifecycle `status`. Bump `updated` whenever the described system changes.
+
+```yaml
+---
+type: spec
+updated: 2026-08-16
+notes: Authoritative domain spec for Callings subsystem.
+---
+```
+
+### `plan-*.md` / `plan.md` (CHANGE — initiative proposal)
+
+```yaml
+---
+type: plan
+status: in-progress     # draft | todo | in-progress | done
+updated: 2026-08-16
+notes: Introducing To Schedule pipeline status and proposal notes.
+---
+```
+
+### Runbooks and work breakdown (HOW)
 
 ```yaml
 ---
 status: todo            # draft | todo | in-progress | done
-updated: 2026-08-10     # ISO date; bump on every status change
+updated: 2026-08-10
 notes:                  # optional; lifecycle detail, archive context, successor path
 ---
 ```
 
-### `status` enum (four values only)
+Runbooks (`N-xx-*.md`) and `0-0-work-breakdown.md` carry `status` but not `type`.
+
+---
+
+## 2. `status` enum (plans and HOW docs only)
 
 | Value | Meaning |
 | --- | --- |
 | `draft` | Not building yet (scope review or shelved draft; not yet accepted work) |
-| `todo` | Accepted work not started (approved feature plan, runbook queued) |
+| `todo` | Accepted work not started (approved plan, runbook queued) |
 | `in-progress` | Active work (building against the plan or executing a runbook) |
-| `done` | Complete or closed (shipped feature plan, finished runbook, pivoted doc in `archive/`) |
+| `done` | Complete or closed (shipped plan, finished runbook, pivoted doc in `archive/`) |
 
 Express everything else in `notes`, not in extra `status` values. Examples:
 
 | Intent | `status` | `notes` (examples) |
 | --- | --- | --- |
-| Feature approved, ready for HOW | `todo` | `Approved for implementation.` |
-| Feature plan is the live WHAT during build | `in-progress` | `Active WHAT; keep honest with HOW.` |
-| Feature shipped or frozen | `done` | `Closed: scope delivered.` |
+| Plan approved, ready for HOW | `todo` | `Approved for implementation.` |
+| Plan is the live CHANGE during build | `in-progress` | `Active CHANGE; keep honest with HOW.` |
+| Plan shipped or frozen | `done` | `Closed: scope delivered.` |
 | Runbook parked | `todo` | `Deferred: waiting on API X.` |
 | Runbook blocked mid-work | `in-progress` | `Blocked: API X returns 500.` |
 | Moved to `archive/` after pivot | `done` | `Archived 2026-08-10. Superseded. Reason: … Successor: path.md` |
@@ -43,13 +70,14 @@ Express everything else in `notes`, not in extra `status` values. Examples:
 
 ### Field rules
 
-- **`status`:** single source of truth for where the doc is in the four-state lifecycle.
-- **`updated`:** mandatory whenever `status` changes.
+- **`type`:** `spec` or `plan` only, on those doc types. Do not add `type` to runbooks.
+- **`status`:** single source of truth for where a plan or HOW doc is in the four-state lifecycle. Not used on `spec.md`.
+- **`updated`:** mandatory whenever `status` changes on plans and runbooks; mandatory on `spec.md` whenever the described system changes.
 - **`notes`:** optional on any doc; required context for archive, defer, blocked, closed, and supersede lives here. Starting a stalled item's note with `Blocked:` or `Deferred:` is a recommended skimming convention, not a required token; `guides/status.md` recognizes stalled work by what the note says, not by a literal prefix match.
 
 ### Which docs carry frontmatter
 
-Carry it: `feature-*.md`, `implementation/0-0-work-breakdown.md`, and each runbook (`N-xx`). Do not: the group index (`N-00`, a derived view) and `decisions.md` (prose log). See §2.
+Carry it: `spec.md`, `plan-*.md` / `plan.md`, `0-0-work-breakdown.md`, and each runbook (`N-xx`). Do not: the group index (`N-00`, a derived view) and `decisions.md` (prose log). See §3.
 
 ### Blocked and deferred (generic status, flagged in notes)
 
@@ -62,7 +90,7 @@ Any note that clearly describes the item as waiting or blocked counts, even with
 
 ### Done runbooks vs archive
 
-Runbooks with `status: done` stay in `implementation/` when the work finished. Move to `archive/` when the approach was replaced or abandoned; set `status: done` and record why in `notes` (see `guides/archive.md`).
+Runbooks with `status: done` stay in the plan folder when the work finished. Move to `archive/` when the approach was replaced or abandoned; set `status: done` and record why in `notes` (see `guides/archive.md`).
 
 ### Optional banner (archive)
 
@@ -70,13 +98,15 @@ An optional line under the title helps humans skimming (`> Archived YYYY-MM-DD. 
 
 ---
 
-## 2. What is NOT frontmatter
+## 3. What is NOT frontmatter
 
-- `decisions.md` is a prose append-log with a table (`Date | Status | Summary`), not YAML frontmatter.
+- `decisions.md` is a prose append-log with a table (`Date | Status | Summary`), not YAML frontmatter. The `Status` column vocabulary (`Decided`, `Pivoted`, `Deferred`, `Superseded`) is separate from the frontmatter `status` enum.
 - The group index status column is a **derived view**: rebuild it by scanning each runbook's `status` frontmatter in that group. You may edit the index file as part of that refresh, but do not invent statuses that are not backed by runbook frontmatter.
+
 ---
 
-## 3. Enum quick reference
+## 4. Enum quick reference
 
-`status`: `draft` `todo` `in-progress` `done`
+`type`: `spec` `plan` (on those doc types only)
 
+`status`: `draft` `todo` `in-progress` `done` (plans and HOW docs only)

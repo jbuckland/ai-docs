@@ -8,7 +8,8 @@ alwaysApply: false
 
 This rule loads when you edit a markdown file under a `specops/` directory (any depth).
 
-1. **Feature root:** Walk up from the edited file to the nearest ancestor directory that directly contains a `feature-*.md`. That is the file's feature root; maintenance is scoped to it.
-2. **Authority:** Read and follow the **spec-ops-flow** skill (`SKILL.md`), including `frontmatter-spec.md` and the skill's **Maintenance contract** section.
+1. **Plan root:** Walk up from the edited file to the nearest ancestor directory that directly contains `plan-*.md` or `plan.md`. That is the file's plan root; plan-scoped maintenance applies there.
+2. **Domain root:** Walk up to the nearest ancestor containing `spec.md`. If you reach `specops/` without encountering `spec.md`, there is no domain root (standalone mode).
+3. **Authority:** Read and follow the **spec-ops-flow** skill (`SKILL.md`), including `frontmatter-spec.md` and the skill's **Maintenance contract** section.
 
-The skill owns all sync logic, enums, and archive behavior. This rule only links "editing a SpecOps Flow doc" to that skill.
+The skill owns all sync logic, enums, graduation, and archive behavior. This rule only links "editing a SpecOps Flow doc" to that skill.

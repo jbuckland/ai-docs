@@ -1,15 +1,16 @@
 # Guide: HOW Runbooks, Contracts, and the Group Index
 
-Turns an approved feature plan into buildable, turn-sized steps. Applies inside a SpecOps feature (a folder under a `specops/` directory).
+Turns an approved change plan into buildable, turn-sized steps. Applies at a **plan root** (a folder under `specops/` containing `plan-*.md` or `plan.md`).
 
 ## Use for
 
-- Technical HOW after an approved feature plan.
+- Technical HOW after an approved plan.
 - Multi-repo work breakdowns, cross-repo contract baselines, migrations, refactors.
 
 ## Do not use for
 
-- Initial feature scoping: use `guides/feature-plan.md` first.
+- Initial scope or CHANGE authoring: use `guides/plan.md` first.
+- Durable system documentation: use `guides/spec.md`.
 - Simple bug fixes: execute directly.
 
 ## Core directives
@@ -19,6 +20,10 @@ Turns an approved feature plan into buildable, turn-sized steps. Applies inside 
 3. **Length limits.** Target ~200 lines, max 400 per runbook. Split by group/phase, not by cramming.
 4. **Tone.** Direct, imperative, technical. "Copy files", "Update imports", "Run build."
 5. **Turn-sized.** Each runbook (`N-xx`) should fit roughly one agent working session.
+6. **Linear.** Steps MUST be executable strictly top to bottom. Each step may depend only on state produced by an earlier step. A step or section must never depend on, assume, or forward-reference a later one. The reader (agent or human) follows the runbook start to finish with no jumping ahead and no backtracking.
+   - No "see step N below", "as configured later", or checks that need something a later step creates.
+   - When a natural dependency runs backwards, reorder the steps so the prerequisite comes first. If reordering is impossible, split into separate runbooks sequenced by their `N` number.
+   - Cross-runbook ordering follows the same rule: a later `N-xx` may build on an earlier one, never the reverse.
 
 ## What is a runbook
 
@@ -26,9 +31,9 @@ A runbook is executable build steps carrying `status` frontmatter, meant to be w
 
 ## Structure levels
 
-A **group** is a set of related runbooks sharing the same `N` number. Flat is the default: a group's runbooks and its index live as sibling files directly under `implementation/`. Use a per-group subfolder only as an escape hatch when that group's docs pile up (for example `implementation/2-ai-backend/` holding `2-00-*.md` plus its `2-xx` runbooks); nothing about the levels below changes when nested.
+A **group** is a set of related runbooks sharing the same `N` number. Flat is the default: a group's runbooks and its index are sibling files directly in the plan folder. Use a per-group subfolder only as an escape hatch when that group's docs pile up.
 
-- `0-0-work-breakdown.md` — repos in play, groups, sequencing, feature-flag/activation strategy. No code. Carries `status`/`updated` frontmatter like the other planning docs.
+- `0-0-work-breakdown.md` — repos in play, groups, sequencing, feature-flag/activation strategy. No code. Carries `status`/`updated` frontmatter.
 - `N-00-*.md` — group index: lists that group's runbooks with a **generated status column** (see `guides/status.md`). Never hand-author the status column.
 - `N-xx-*.md` — a single turn-sized runbook, from `templates/runbook.md`.
 
