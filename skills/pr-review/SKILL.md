@@ -156,8 +156,8 @@ Audit the isolated diff against both **Tier 1 (Product Quality & System Cohesion
    - **⚠️ P2 (Important):** Missing typecheck exclusions, bundle optimization warnings, UX regressions on specific viewport sizes, tight coupling, code duplication.
    - **📝 P3 (Improvement / Nit):** Styling polish, minor convention tweaks, SpecOps documentation updates, naming alignment.
 2. **No Pre-Generated Annotations**:
-   - Do **NOT** pre-populate `{! ... }` annotation tags in the generated review.
-   - Output clean markdown checklist items `- [ ]` and clear descriptions. The human reviewer will insert their own `{! ... }` annotations where desired.
+   - Do **NOT** pre-populate annotation tags in the generated review.
+   - Output clean markdown checklist items `- [ ]` and clear descriptions. The human reviewer will insert their own annotations where desired.
 3. **Specific File & Line Targeting**:
    - Whenever relevant, anchor findings and review comments directly to the specific file and line numbers (`[<file>#L...](file:///...)`) where the issue or pattern occurs. Avoid generic file-level generalities when an exact line or code block is known.
    - **Local Review Documents:** The local markdown review artifact (`pr-review-<number>.md`) CAN and SHOULD contain local `file:///` links with exact line numbers (`file:///path/to/file.ts#L10-L20`) so the developer can navigate directly to the code inside their IDE.
@@ -225,7 +225,6 @@ When submitting review feedback to GitHub (via `gh` CLI or GitHub API), strictly
      - Branch rebase requirements.
      - Overall build or test status.
      - Final approval / changes requested decision.
-     - A brief note indicating that detailed file comments were posted inline on the diff.
 
 3. **Link & URI Handling (Local vs. Remote)**:
    - **Local Review Document (`pr-review-<number>.md`):** Allowed and encouraged to use local `file:///...` links for fast in-editor navigation.
