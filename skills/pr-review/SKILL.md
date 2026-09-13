@@ -1,7 +1,7 @@
 ---
 name: pr-review
 description: Comprehensive, framework-agnostic Pull Request review workflow. Evaluates UX polish, system cohesion, engineering craftsmanship, and architectural safety nets, producing an annotatable review worksheet with actionable findings.
-version: 1.1
+version: 1.2
 tags:
   - ai-skill
   - workflow
@@ -53,7 +53,7 @@ Serve as the proactive safety net for systemic, cross-cutting concerns that huma
 
 ## Review Workflow Protocol
 
-When invoked via `/pr-review`, "review PR #<number>", or "review <branch>", execute the following 5 phases:
+When invoked via `/pr-review`, "review PR #<number>", or "review <branch>", execute the following 6 phases:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -79,6 +79,11 @@ When invoked via `/pr-review`, "review PR #<number>", or "review <branch>", exec
 ┌──────────────────────────────▼──────────────────────────────┐
 │ Phase 5: Dynamic Location Resolution & Artifact Generation  │
 │ (Save pr-review-<number>.md -> remain on PR branch)         │
+└──────────────────────────────┬──────────────────────────────┘
+                               │
+┌──────────────────────────────▼──────────────────────────────┐
+│ Phase 6: GitHub Submission (Inline Comments vs General Body)│
+│ (Post inline diff comments on files/lines -> General PR body)│
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -153,6 +158,17 @@ Audit the isolated diff against both **Tier 1 (Product Quality & System Cohesion
 2. **No Pre-Generated Annotations**:
    - Do **NOT** pre-populate `{! ... }` annotation tags in the generated review.
    - Output clean markdown checklist items `- [ ]` and clear descriptions. The human reviewer will insert their own `{! ... }` annotations where desired.
+3. **Specific File & Line Targeting**:
+   - Whenever relevant, anchor findings and review comments directly to the specific file and line numbers (`[<file>#L...](file:///...)`) where the issue or pattern occurs. Avoid generic file-level generalities when an exact line or code block is known.
+   - **Local Review Documents:** The local markdown review artifact (`pr-review-<number>.md`) CAN and SHOULD contain local `file:///` links with exact line numbers (`file:///path/to/file.ts#L10-L20`) so the developer can navigate directly to the code inside their IDE.
+4. **Communication Tone: Business Human (No Sycophantic Fluff)**:
+   - Write feedback in the voice of a practical, direct peer reviewer ("business human").
+   - Strictly avoid sycophantic AI cadence or cheerleading ("Clean, elegant implementation!", "Exceptional work!", "Great job!"). State what passed, what blocks merge, and what concrete actions are needed.
+   - Format large feedback and comment blocks into true bullet format or line-delimited sentences (one sentence per line) for fast reading.
+5. **Separation of General PR vs. Inline File Comments**:
+   - Always divide PR feedback into two distinct categories:
+     - **General PR Comments:** High-level PR issues (e.g. branch rebase requirements, version alignment, overall sign-off status).
+     - **Comments on Specific Files:** Actionable code findings tied to an exact file path and line number range.
 
 ---
 
@@ -178,6 +194,42 @@ Do **not** hardcode a single repository path into the review tool. Determine the
 4. **Prompted Fallback:**  
    - If no user directory or prior review folder exists, ask:  
      *"Where should I save `pr-review-<number>.md`?"* (providing detected gitignored folders as recommendations).
+
+---
+
+### Phase 6: GitHub Review Submission (General vs. Inline File Comments)
+
+When submitting review feedback to GitHub (via `gh` CLI or GitHub API), strictly adhere to the following comment placement rules:
+
+1. **Inline Comments on Specific Files & Lines (Diff Anchoring)**:
+   - Any comment that relates to a specific file and line **MUST be posted as an inline code review comment directly on that file and line** within the PR diff on GitHub.
+   - Do **NOT** lump specific file comments into the general PR review body.
+   - Post inline comments using the GitHub API:
+     ```powershell
+     gh api repos/<owner>/<repo>/pulls/<pr-number>/comments --input comment.json
+     ```
+     Where `comment.json` contains:
+     ```json
+     {
+       "body": "Comment text with markdown and code blocks",
+       "commit_id": "<head-commit-sha>",
+       "path": "path/to/file.ts",
+       "line": 102,
+       "side": "RIGHT"
+     }
+     ```
+   - **Payload Safety:** Always use JSON payload files (`--input <file>.json`) rather than `-f body="..."` in PowerShell to prevent shell escaping from mangling backticks, newlines, and markdown blocks.
+
+2. **General PR Review Body**:
+   - The top-level PR review comment (submitted via `gh pr review <number> --request-changes / --approve`) must contain **only** high-level, cross-cutting feedback:
+     - Branch rebase requirements.
+     - Overall build or test status.
+     - Final approval / changes requested decision.
+     - A brief note indicating that detailed file comments were posted inline on the diff.
+
+3. **Link & URI Handling (Local vs. Remote)**:
+   - **Local Review Document (`pr-review-<number>.md`):** Allowed and encouraged to use local `file:///...` links for fast in-editor navigation.
+   - **GitHub Comments (Remote):** Must **NEVER** contain local `file://c:...` links (which are broken and unclickable on GitHub). Always use repository-relative paths (`path/to/file.ts:102`) or plain backticks.
 
 ---
 
@@ -259,4 +311,11 @@ Date: YYYY-MM-DD
 
 **Feedback to Author:**  
 *(Reviewer can add final comments here or use `{! ... }` annotations across the document)*
+
+### General PR Comments
+- <Overall summary, branch rebase requirements, architectural notes>
+
+### Comments on Specific Files (Posted Inline to GitHub Diff)
+- **`<file-path>:<line>`:**
+  <Feedback anchored directly to this file and line on GitHub>
 ```
