@@ -94,9 +94,11 @@ function formatAlignedTable(table, colWidths, colCount) {
             const sep = table.separators[c] || '---';
             const alignLeft = sep.startsWith(':');
             const alignRight = sep.endsWith(':');
+            const prefix = alignLeft ? ':' : '';
+            const suffix = alignRight ? ':' : '';
             const dashCount = colWidths[c] - (alignLeft ? 1 : 0) - (alignRight ? 1 : 0);
             const dashes = '-'.repeat(Math.max(dashCount, 1));
-            padded.push(`${alignLeft ? ':' : '-'}${dashes}${alignRight ? ':' : '-'}`);
+            padded.push(`${prefix}${dashes}${suffix}`);
         }
         return `| ${padded.join(' | ')} |`;
     };
