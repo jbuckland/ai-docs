@@ -14,7 +14,7 @@ Treat each annotation as an instruction, question, or decision point embedded in
 ## Configuration
 
 Configuration overrides live in `config.user.md` in this skill's directory (copied from `config.template.md`):
-- `logPath`: Path to the central tracker document (default: `c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`).
+- `logPath`: Path to the central tracker document.
 - `thresholdAlert`: Number of occurrences in a category before suggesting codification (default: `3`).
 
 ## Workflow
@@ -23,8 +23,7 @@ Configuration overrides live in `config.user.md` in this skill's directory (copi
 2. Read enough surrounding context to understand the annotation's intent.
 3. Determine intent: **Is the user directing code or implementation to be different?**
    - **YES (Code / Style / Architecture Correction):**
-     - Assign an **organic, descriptive category** (e.g. `Type Safety`, `Styling & Tokens`, `Angular Signals`, `Component Scope`, `Code Hygiene`, `State Management`, `Domain Semantics`, etc.).
-     - **NEVER use a fixed or closed list of categories.** If a new category of annotation comes up, it MUST be marked with a new category, never shoved into one it doesn't fit with. Categories evolve and emerge organically over time.
+     - Assign an **organic, descriptive category** (e.g. `Type Safety`, `Styling & Tokens`, `Angular Signals`, `Component Scope`, `Code Hygiene`, `State Management`, etc.). Do NOT force fit into a rigid closed list—allow new categories to emerge naturally as patterns arise.
      - Append the entry to the configured `logPath` under that category's section as a bullet point:
        `- **YYYY-MM-DD** [workspace]: Context/Problem: "raw annotation snippet" → action taken`
        (Include the context/problem so subsequent agents understand the concrete anti-pattern being addressed).
@@ -37,23 +36,27 @@ Configuration overrides live in `config.user.md` in this skill's directory (copi
 6. Preserve the document's existing tone, structure, heading style, and formatting.
 7. Report what happened to each annotation in the final response.
 
-## Log Structure & Organic Categories
+## Log Structure, Organic Categories & Subcategories
 
-The tracker file (default: `c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`) is maintained as:
-- **Summary Overview:** A compact list of active categories and their total entries.
-- **Category Sections:** A markdown section per category (`## Category Name`), containing a chronological bullet list of entries.
-- **Strictly Organic Evolution:** Categories are NOT closed or fixed. When an annotation represents a distinct engineering or styling concept, create a brand-new `## New Category` heading instead of shoehorning it into an existing one. Categories must evolve and emerge organically from actual review feedback.
+The tracker file is maintained as:
+- **Summary Overview:** A compact list or count of all active categories, subcategories, and their total entries.
+- **Category & Subcategory Sections:** Markdown sections per category (`## Category Name` or `## Category / Subcategory`), containing a chronological bullet list of entries.
+- **Organic Evolution & Subcategories:** Categories are open-ended. When a broad category (such as `Type Safety`) starts to accumulate many entries, agents should actively identify whether focused subcategories should be created (e.g. `Type Safety / Boundary Casting & Type Evasion`, `Type Safety / Domain Model Contracts & Index Signatures`). Broad buckets must be decomposed into tighter clusters of related problems.
+- **Reorganizing & Adjusting Log Categories:** Agents are explicitly authorized and encouraged to adjust the categorization and subcategorization of existing entries in the tracker whenever it makes patterns clearer and more actionable.
+- **Mandatory Entry Context:** Every entry must include rich context describing what was being worked on and the concrete problem/anti-pattern:
+  `- **YYYY-MM-DD** [workspace]: **[Context / Problem]**: "raw annotation snippet" → action taken`
+  Do NOT record bare quotes without context. When reviewing the tracker, update existing entries that lack context.
 
 ## Smart Pattern Alerts & Rule Codification Nudge
 
 The tracker is an empirical tool to discover where permanent rules are needed. **Do not merely state raw counts** (e.g., avoid generic notifications like "Category X has reached N entries").
 
-Instead, when a category accumulates multiple entries (>= `thresholdAlert`), agents must be smarter:
-1. **Analyze the recurring corrections** in that category to identify the specific root issue or anti-pattern the user keeps having to correct.
-2. **Formulate a specific, actionable rule draft ("Rule X")** that directly prevents that issue.
-3. **Identify the target instruction or rule file** in `ai-docs/instructions/` (or repository `.agents/rules/`).
-4. **Prompt the user with the tailored suggestion**:
-   > "Pattern Alert: I notice you've repeatedly corrected [specific issue, e.g. double-casting through unknown / loose index signatures in domain models]. Would you like to codify a standing rule: '[proposed rule text]' in `[target rule file]`?"
+Furthermore, because broad categories (like `Type Safety`) could encompass dozens of different rules, **agents should only suggest a new rule when there is an identifiable pattern of similar enough annotations** addressing a specific, concrete problem:
+1. **Cluster by Specific Sub-Pattern:** Examine entries within a category or subcategory to find recurring, similar corrections (e.g., repeated instances of double-casting via `as unknown as Type`, or repeated hardcoded hex colors instead of CSS tokens).
+2. **Formulate a Specific, Actionable Rule Draft ("Rule X"):** Draft the exact rule text targeting that concrete recurring issue.
+3. **Identify the Target Instruction or Rule File** in `ai-docs/instructions/` (or repository `.agents/rules/`).
+4. **Prompt the User with the Tailored Suggestion:**
+   > "Pattern Alert: I notice you've repeatedly corrected [specific issue]. Would you like to codify a standing rule: '[proposed rule text]' in `[target rule file]`?"
 
 Do not modify permanent rule files automatically. Wait for the user's explicit directive.
 
