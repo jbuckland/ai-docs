@@ -11,37 +11,44 @@ Use this skill when editing any readable textual content that contains natural l
 
 Treat each annotation as an instruction, question, or decision point embedded in the surrounding content. Resolve it in place whenever possible, then remove the `{! ... }` marker.
 
+## Configuration
+
+Configuration overrides live in `config.user.md` in this skill's directory (copied from `config.template.md`):
+- `logPath`: Path to the central tracker document (default: `c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`).
+- `thresholdAlert`: Number of occurrences in a category before suggesting codification (default: `3`).
+
 ## Workflow
 
 1. Scan the target content for `{!`.
 2. Read enough surrounding context to understand the annotation's intent.
-3. Classify the annotation:
-   - **Form:** `Correction` (correcting a pattern/mistake), `Direct Instruction` (explicit command), `Question` (asking why/how), `Comment` (feedback/observation), or `Escalation` (human decision).
-   - **Purpose:** `User Preference / Code Craft` (style, typing, architecture, ergonomics) vs `Domain Logic` (business rules, meeting flow) vs `Task Orchestration` (runbook sequencing, git hygiene).
-   - **Action:**
-     - **Act & Resolve:** Execute the requested change, apply the refactor, or choose the best technical approach.
-     - **Escalate:** If another human must answer, extract the question to a separate summary note.
-     - **Skip:** Leave the annotation intact only when there is not enough context or authority to resolve it.
-4. **Log User Corrections:** If Purpose is `User Preference / Code Craft`, record the correction in the central ledger:
-   - Path: `c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`
-   - Update the **Frequency Summary** table (increment occurrence count or add new pattern).
-   - Append a row to the **Chronological Review Ledger** with timestamp, workspace, form, category, raw snippet, and action taken.
-5. Update the content so the annotation is no longer needed.
-6. Remove every annotation that was resolved or escalated.
-7. Preserve the document's existing tone, structure, heading style, and formatting.
-8. Report what happened to each annotation in the final response.
+3. Determine intent: **Is the user directing code or implementation to be different?**
+   - **YES (Code / Style / Architecture Correction):**
+     - Assign an **organic, descriptive category** (e.g. `Type Safety`, `Styling & Tokens`, `Angular Signals`, `Component Scope`, `Code Hygiene`, `State Management`, etc.). Do NOT force fit into a rigid closed list—allow new categories to emerge naturally as patterns arise.
+     - Append the entry to the configured `logPath` under that category's section as a bullet point:
+       `- **YYYY-MM-DD** [workspace]: "raw annotation snippet" → action taken`
+     - Increment the count in the category summary at the top of the tracker.
+     - If the category has reached or exceeded `thresholdAlert` entries, flag it for the user in the final report.
+   - **NO (General Question, Comment, or Domain Decision):**
+     - Answer, clarify, or implement the requested decision directly inline. Do not log to the code correction tracker.
+4. Update the content so the annotation is no longer needed.
+5. Remove every annotation that was resolved or escalated.
+6. Preserve the document's existing tone, structure, heading style, and formatting.
+7. Report what happened to each annotation in the final response.
 
-## User Correction Tracking & Graduation
+## Log Structure & Organic Categories
 
-- **Central Location:** All coding preference and review corrections are tracked centrally in [`c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`](file:///c:/stuff-john/github/ai-docs/logs/annotation-tracker.md), NOT in individual project repositories.
-- **Taxonomy Categories:**
-  - `Type Safety`: Closed domain interfaces, no loose index signatures (`[key: string]: unknown`), no double-casting via `unknown`, discriminated unions for polymorphic models, ViewItem extending domain models.
-  - `Angular Signals`: Signals over `@ViewChild`, reactive inputs/outputs, zoneless state.
-  - `Styling & Theming`: CSS custom properties (`var(--...)`) instead of LESS `@variables` or hardcoded hex colors, dark/light mode compatibility, token reuse from `variables.less`.
-  - `Component Scope`: Splitting monolithic components/templates (> 200 lines), lifting shared CSS primitives to `src/styles/components/`.
-  - `Code Hygiene`: Eliminating fake default objects (`id: ''`), eliminating nested ternaries in forms/drafts.
-  - `SpecOps Planning`: Keeping `decisions.md` strictly for architectural trade-offs (not status summaries), authoring just-in-time runbooks, monospaced markdown tables.
-- **Temporary Nature & Graduation:** The tracker is temporary. When a pattern recurs frequently (count >= 2–3), it is codified into a permanent rule in `ai-docs/instructions/` (or repository `.agents/rules/`). Once codified, mark the status as `Graduated to [file]` so future agents follow the rule proactively and repetitive annotations cease.
+The tracker file (default: `c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`) is maintained as:
+- **Summary Overview:** A compact list or count of all active categories and their total entries.
+- **Category Sections:** A markdown section per category (`## Category Name`), containing a chronological bullet list of entries.
+- **Organic Evolution:** Categories are open-ended. When an annotation represents a distinct engineering or styling concept, create a new `## New Category` heading instead of shoehorning it into an existing one.
+
+## Rule Codification Nudge
+
+The tracker is an empirical tool to discover where permanent rules are needed. When a category accumulates multiple entries (>= `thresholdAlert`), prompt the user in the final response:
+
+> "Pattern Alert: There are now N logged corrections under **[Category]**. Would you like to review these and codify a standing rule in `ai-docs/instructions/`?"
+
+Do not modify permanent rule files automatically. Wait for the user's explicit directive.
 
 ## Resolution Rules
 
@@ -65,8 +72,11 @@ Resolved annotations:
 - `{!remove dependency}`: Removed the dependency note from the affected section.
 - `{!what's a better way?}`: Replaced the proposed approach with the existing project pattern.
 
-Logged user corrections:
-- Logged to `c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`: [Category] pattern description (Count: N)
+Logged code corrections (to `annotation-tracker.md`):
+- `[Category]`: "annotation quote" → action taken (Total in category: N)
+
+Pattern Alert (if threshold reached):
+- Category **[Category]** has reached N entries. Would you like to review and codify a permanent rule?
 
 Escalated annotations:
 - `{!ask Bob}`: Captured as an open question about deployment ownership.
