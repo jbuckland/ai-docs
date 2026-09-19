@@ -23,11 +23,13 @@ Configuration overrides live in `config.user.md` in this skill's directory (copi
 2. Read enough surrounding context to understand the annotation's intent.
 3. Determine intent: **Is the user directing code or implementation to be different?**
    - **YES (Code / Style / Architecture Correction):**
-     - Assign an **organic, descriptive category** (e.g. `Type Safety`, `Styling & Tokens`, `Angular Signals`, `Component Scope`, `Code Hygiene`, `State Management`, etc.). Do NOT force fit into a rigid closed list—allow new categories to emerge naturally as patterns arise.
+     - Assign an **organic, descriptive category** (e.g. `Type Safety`, `Styling & Tokens`, `Angular Signals`, `Component Scope`, `Code Hygiene`, `State Management`, `Domain Semantics`, etc.).
+     - **NEVER use a fixed or closed list of categories.** If a new category of annotation comes up, it MUST be marked with a new category, never shoved into one it doesn't fit with. Categories evolve and emerge organically over time.
      - Append the entry to the configured `logPath` under that category's section as a bullet point:
-       `- **YYYY-MM-DD** [workspace]: "raw annotation snippet" → action taken`
-     - Increment the count in the category summary at the top of the tracker.
-     - If the category has reached or exceeded `thresholdAlert` entries, flag it for the user in the final report.
+       `- **YYYY-MM-DD** [workspace]: Context/Problem: "raw annotation snippet" → action taken`
+       (Include the context/problem so subsequent agents understand the concrete anti-pattern being addressed).
+     - Increment the count in the category summary at the top of the tracker (or add the new category if newly created).
+     - If the category has reached or exceeded `thresholdAlert` entries, synthesize the pattern and alert the user with a specific rule suggestion.
    - **NO (General Question, Comment, or Domain Decision):**
      - Answer, clarify, or implement the requested decision directly inline. Do not log to the code correction tracker.
 4. Update the content so the annotation is no longer needed.
@@ -38,15 +40,20 @@ Configuration overrides live in `config.user.md` in this skill's directory (copi
 ## Log Structure & Organic Categories
 
 The tracker file (default: `c:/stuff-john/github/ai-docs/logs/annotation-tracker.md`) is maintained as:
-- **Summary Overview:** A compact list or count of all active categories and their total entries.
+- **Summary Overview:** A compact list of active categories and their total entries.
 - **Category Sections:** A markdown section per category (`## Category Name`), containing a chronological bullet list of entries.
-- **Organic Evolution:** Categories are open-ended. When an annotation represents a distinct engineering or styling concept, create a new `## New Category` heading instead of shoehorning it into an existing one.
+- **Strictly Organic Evolution:** Categories are NOT closed or fixed. When an annotation represents a distinct engineering or styling concept, create a brand-new `## New Category` heading instead of shoehorning it into an existing one. Categories must evolve and emerge organically from actual review feedback.
 
-## Rule Codification Nudge
+## Smart Pattern Alerts & Rule Codification Nudge
 
-The tracker is an empirical tool to discover where permanent rules are needed. When a category accumulates multiple entries (>= `thresholdAlert`), prompt the user in the final response:
+The tracker is an empirical tool to discover where permanent rules are needed. **Do not merely state raw counts** (e.g., avoid generic notifications like "Category X has reached N entries").
 
-> "Pattern Alert: There are now N logged corrections under **[Category]**. Would you like to review these and codify a standing rule in `ai-docs/instructions/`?"
+Instead, when a category accumulates multiple entries (>= `thresholdAlert`), agents must be smarter:
+1. **Analyze the recurring corrections** in that category to identify the specific root issue or anti-pattern the user keeps having to correct.
+2. **Formulate a specific, actionable rule draft ("Rule X")** that directly prevents that issue.
+3. **Identify the target instruction or rule file** in `ai-docs/instructions/` (or repository `.agents/rules/`).
+4. **Prompt the user with the tailored suggestion**:
+   > "Pattern Alert: I notice you've repeatedly corrected [specific issue, e.g. double-casting through unknown / loose index signatures in domain models]. Would you like to codify a standing rule: '[proposed rule text]' in `[target rule file]`?"
 
 Do not modify permanent rule files automatically. Wait for the user's explicit directive.
 
@@ -73,10 +80,10 @@ Resolved annotations:
 - `{!what's a better way?}`: Replaced the proposed approach with the existing project pattern.
 
 Logged code corrections (to `annotation-tracker.md`):
-- `[Category]`: "annotation quote" → action taken (Total in category: N)
+- `[Category]`: Context/Problem: "annotation quote" → action taken (Total in category: N)
 
 Pattern Alert (if threshold reached):
-- Category **[Category]** has reached N entries. Would you like to review and codify a permanent rule?
+- I notice you've repeatedly corrected [specific anti-pattern]. Would you like to codify a standing rule: '[proposed rule text]' in `[target rule file]`?
 
 Escalated annotations:
 - `{!ask Bob}`: Captured as an open question about deployment ownership.

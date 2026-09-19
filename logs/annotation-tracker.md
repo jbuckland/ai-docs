@@ -9,13 +9,15 @@ This document is a centralized, empirical ledger for tracking John's review anno
 
 ## Category Summary
 
-- **Type Safety:** 7 entries
+- **Type Safety:** 9 entries
 - **Styling & Theming:** 3 entries
 - **Component Scope:** 2 entries
 - **Code Hygiene:** 2 entries
 - **Angular Signals:** 1 entry
 - **SpecOps Planning:** 1 entry
 - **Domain Naming:** 1 entry
+- **UI Fallbacks & Placeholder Copy:** 1 entry
+- **Component Architecture:** 1 entry
 
 ---
 
@@ -28,6 +30,8 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: `"same comments as above"` → Defined strongly typed `PublishedAnnouncement` interface.
 - **2026-09-19** [`myward`]: `"why are we allowing arbitrary additional properties in these interfaces?"` → Removed `[key: string]: unknown` index signatures from canonical domain models.
 - **2026-09-19** [`myward`]: `"feels like this should be split into two different interfaces"` → Split monolithic polymorphic `AgendaItem` into `SpeakerAgendaItem` and `SongAgendaItem` discriminated union.
+- **2026-09-19** [`myward`]: Avoid double casting in service: `"I want to avoid having to as unknown as ..."` → Typed `SacramentDataService.load()` and `watch()` to return domain `MeetingSnapshot`, eliminating `as unknown as` casts in callers.
+- **2026-09-19** [`myward`]: Section save typing: `"convert to discriminated union? or child classes of StorageData?"` → Codified discriminated union overloads using `AgendaSectionSavePayload` and typed section overloads on `SacramentService.save()`.
 
 ## Styling & Theming
 
@@ -56,3 +60,12 @@ This document is a centralized, empirical ledger for tracking John's review anno
 ## Domain Naming
 
 - **2026-09-19** [`myward`]: `"looks like we don't use the work 'domain' in our domain objects. let's remove that."` → Renamed `*.domain.ts` files to `*.ts` to match existing repository naming conventions.
+
+## UI Fallbacks & Placeholder Copy
+
+- **2026-09-19** [`myward`]: Liturgical calling business fallback: `"in what case would we wind up showing "Unknown"?"` → Replaced arbitrary placeholder string `'Unknown'` with trimmed candidate name or clean empty string `''`.
+
+## Component Architecture
+
+- **2026-09-19** [`myward`]: Legacy form component service evaluation: `"evaluate this component as a candidate to recieve a backing service"` → Documented architectural evaluation: `SacramentAgendaFormComponent` delegates persistence to `SacramentService` and is superseded by `SacramentAgendaBuilderComponent`.
+
