@@ -13,9 +13,10 @@ This document is a centralized, empirical ledger for tracking John's review anno
   - *Boundary Casting & Type Evasion:* 3 entries
   - *Domain Model Contracts & Index Signatures:* 3 entries
   - *Discriminated Unions & ViewItem Inheritance:* 3 entries
-- **Styling & Theming:** 4 entries
-- **Component Scope & Modularity:** 2 entries
-- **Code Hygiene & Logic Clarity:** 2 entries
+- **Styling & Theming:** 5 entries
+- **Component Scope & Modularity:** 3 entries
+- **Code Hygiene & Logic Clarity:** 3 entries
+- **Domain Modeling & Spec Discipline:** 1 entry
 - **Angular Signals & Reactivity:** 1 entry
 - **SpecOps Planning & Documentation:** 1 entry
 - **File & Domain Naming:** 1 entry
@@ -48,16 +49,23 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: **LESS compile-time variables used instead of CSS runtime custom properties**: `"why @vars instead of css variables? and I'm still not convinced that these are unique colors/sizes. Will this work with dark and light mode??"` → Refactored LESS variables to CSS custom properties (`var(--...)`) for full runtime dark and light theme switching.
 - **2026-09-19** [`myward`]: **Duplicated liturgical CSS rules across individual components**: `"it looks like we're using the same style..."` → Consolidated duplicated component styles into shared liturgical UI primitives in `agenda.less`.
 - **2026-09-19** [`myward`]: **Redundant re-declaration of global drawer, button, form, and avatar primitives in component stylesheet**: `"review this for style duplication and other style rule violations"` → Eliminated duplicated global primitives (`.drawer-overlay`, `.drawer-panel`, `.form-control`, `.btn-*`, `.avatar-*`), reduced stylesheet from 614 lines to 267 lines, and inherited canonical design system classes from `src/styles/components/`.
+- **2026-09-19** [`myward`]: **Fallback parameters in CSS var() expressions and off-palette colors**: `"there are many style rule violations that need resolved here"` → Eliminated fallback parameters in all `var()` calls, replaced incorrect `--color-surface` and raw hex/rgba values with canonical `--surface-primary`, `--color-music`, `--text-inverse` tokens from `variables.less`.
 
 ## Component Scope & Modularity
 
 - **2026-09-19** [`myward`]: **Monolithic component combining header, layout, and item management**: `"this file seems like it might be too long"` → Extracted `AgendaProgramComponent` subcomponent out of `SacramentAgendaBuilderComponent`.
 - **2026-09-19** [`myward`]: **Oversized component stylesheet containing shared primitives**: `"this file also seems way too long"` → Lifted shared liturgical styling primitives from local component LESS to `src/styles/components/agenda.less`.
+- **2026-09-19** [`myward`]: **Over-scoping drawer to musical numbers instead of pure hymnal catalog**: `"musical numbers aren't 'selected' from a drawer, only hymns are... this drawer doesn't need to worry about musicalNumbers, just hymns"` → Restricted `SacramentHymnDrawerComponent` slot typing strictly to `HymnKey`, decoupling custom musical numbers to agenda program level.
 
 ## Code Hygiene & Logic Clarity
 
 - **2026-09-19** [`myward`]: **Dummy synthetic objects used to back draft forms**: `"ah, I see. You just moved the smell somewhere else..."` → Eliminated synthetic empty domain objects (`id: ''`) used to back draft forms.
 - **2026-09-19** [`myward`]: **Nested ternary expressions controlling item instantiation**: `"remove ternary"` → Replaced nested ternaries with explicit control-flow branches for item creation.
+- **2026-09-19** [`myward`]: **Ternary used for multi-branch array sorting**: `"I don't like this ternary"` → Replaced return ternary in `HymnDataService.searchHymns` with explicit `if/else` branches.
+
+## Domain Modeling & Spec Discipline
+
+- **2026-09-19** [`myward`]: **Premature synthetic category taxonomy in domain data**: `"yeah, not loving this. My instinct is to drop 'category' until we have a proper system in place"` → Dropped synthetic `category` field from `HymnCatalogItem` and removed category pill UI, deferring liturgical classification until a proper topic-tagging architecture is established.
 
 ## Angular Signals & Reactivity
 
