@@ -56,7 +56,7 @@ Because broad categories (such as `Type Safety`) can encompass dozens of differe
 2. **Synthesize the Pattern:** Articulate the precise technical anti-pattern being corrected.
 3. **Formulate a Specific, Actionable Rule:** Draft the exact, concrete rule text that directly prevents that specific mistake.
 4. **Identify the Target Rule File:** Point to the exact instruction file in `ai-docs/instructions/` (or repository `.agents/rules/`).
-5. **Prompt with the Pattern Nudge:** Alert the user naturally to the recurring pattern. Do not prescribe exact wording; focus on conveying the core ideas:
+5. **Prompt with the Pattern Nudge:** Alert the user naturally to the recurring pattern, focusing on conveying the core ideas:
    - Identify the concrete recurring problem or anti-pattern observed across reviews.
    - Propose specific, actionable rule wording to prevent it.
    - Suggest the target instruction or rule file where it belongs.

@@ -13,7 +13,7 @@ This document is a centralized, empirical ledger for tracking John's review anno
   - *Boundary Casting & Type Evasion:* 3 entries
   - *Domain Model Contracts & Index Signatures:* 3 entries
   - *Discriminated Unions & ViewItem Inheritance:* 3 entries
-- **Styling & Theming:** 3 entries
+- **Styling & Theming:** 4 entries
 - **Component Scope & Modularity:** 2 entries
 - **Code Hygiene & Logic Clarity:** 2 entries
 - **Angular Signals & Reactivity:** 1 entry
@@ -47,6 +47,7 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: **Hardcoded hex codes introduced during refactoring**: `"why did these go back to hard coded colors??"` → Replaced hardcoded `#ffffff` and `#000000` with `var(--surface-primary)` and `var(--text-primary)` design tokens.
 - **2026-09-19** [`myward`]: **LESS compile-time variables used instead of CSS runtime custom properties**: `"why @vars instead of css variables? and I'm still not convinced that these are unique colors/sizes. Will this work with dark and light mode??"` → Refactored LESS variables to CSS custom properties (`var(--...)`) for full runtime dark and light theme switching.
 - **2026-09-19** [`myward`]: **Duplicated liturgical CSS rules across individual components**: `"it looks like we're using the same style..."` → Consolidated duplicated component styles into shared liturgical UI primitives in `agenda.less`.
+- **2026-09-19** [`myward`]: **Redundant re-declaration of global drawer, button, form, and avatar primitives in component stylesheet**: `"review this for style duplication and other style rule violations"` → Eliminated duplicated global primitives (`.drawer-overlay`, `.drawer-panel`, `.form-control`, `.btn-*`, `.avatar-*`), reduced stylesheet from 614 lines to 267 lines, and inherited canonical design system classes from `src/styles/components/`.
 
 ## Component Scope & Modularity
 
