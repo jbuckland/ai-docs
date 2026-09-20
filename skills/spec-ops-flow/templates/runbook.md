@@ -13,6 +13,7 @@ updated: YYYY-MM-DD
 **Location:** File paths
 **Components:** Bulleted list
 **Dependencies:** Key items only
+**Shared UI Primitives:** Existing design system or shared styles to inherit (for UI tasks)
 
 ## Implementation Steps
 

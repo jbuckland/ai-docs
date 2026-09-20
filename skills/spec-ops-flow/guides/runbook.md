@@ -44,6 +44,7 @@ A **group** is a set of related runbooks sharing the same `N` number. Flat is th
 3. **Environment specifics** — file paths, dependencies, config changes.
 4. **Validation** — a `- [ ]` checklist of testable outcomes per phase.
 5. **What You Can Do Now** — required tail on every runbook, separate from Validation. States the concrete new capability (call a function, hit an endpoint, click through a UI, watch a log line) and what you'd see back. Say plainly when nothing is observable yet, and flag when a capability is still gated behind a flag or stub.
+6. **Shared UI Primitives Inventory** — For any task creating or modifying UI components, explicitly inventory the existing design system or shared styling layer (overlays, dialogs, buttons, forms, cards, avatars) that the component will inherit. Local component stylesheets must only define layout flow and unique component geometry, never re-declare shared primitive styles.
 
 ## Frontmatter and status
 

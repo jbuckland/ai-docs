@@ -6,6 +6,7 @@
 * Run single, isolated terminal commands rather than complex chains (avoid `&&` or `;`). This ensures each step can be evaluated, approved, and debugged individually.
 * Markdown Tables: Any markdown table wider than 120 characters MUST be reformatted as a structured bullet list or subheadings. Tables under 120 characters must have their columns aligned in raw source text using monospaced padding.
 * Credentials & Secrets: Bitwarden is the standard password manager for all credentials and secrets; agents must always instruct saving secrets there and never commit or store credentials in plain text files.
+* Component Stylesheet Length & Smell Flag: A component-scoped stylesheet exceeding 200 lines is a red flag for deeper review. It strongly suggests un-lifted global primitives, duplicate control styles, or runaway local CSS. Review and verify whether base styles should be inherited from the shared design system.
 
 
 

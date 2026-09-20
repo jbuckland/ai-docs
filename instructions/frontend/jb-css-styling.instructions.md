@@ -52,6 +52,7 @@ All theme colors, surfaces, borders, and tokenized dimensions MUST use CSS custo
 - **Component-Specific Styles** (`*.component.less`): Should **only** declare layout positioning (flexbox/grid flow, gap) and structural geometry unique to that specific component.
 - **Unique & Single-Use Geometry**: When a component has a dimension or geometric constraint that is strictly unique and will not be reused elsewhere (e.g. `min-width: 260px`, `max-width: 540px`), define it directly in the local stylesheet without creating unnecessary design tokens.
 - **Spacing & Display Density**: In applications that utilize tokenized spacing/density scales (e.g. `--space-*`, `--card-padding`, `--table-row-padding-y`), use those tokens for consistency and responsive density adaptability.
+- **Stylesheet Size & Smell Flag**: A component-scoped stylesheet exceeding 200 lines is a red flag for deeper review. It strongly suggests un-lifted global primitives, duplicate control styles, or runaway local CSS. Review and verify whether base styles should be inherited from the shared design system.
 
 ---
 
@@ -163,5 +164,6 @@ Angular compiles component styles in isolated contexts and does **not** inherit 
 - Include fallback values in `var(--token, fallback)`.
 - Hardcode color hex/rgb/hsl values.
 - Duplicate common UI patterns (switches, avatars, status pills) across multiple component `.less` files.
+- Let component stylesheets exceed 200 lines without a deeper review for un-lifted shared primitives.
 - Use `!important`.
 - Nest selectors more than 3 levels deep.
