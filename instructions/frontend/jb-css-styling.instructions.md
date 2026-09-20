@@ -41,9 +41,14 @@ All theme colors, surfaces, borders, and tokenized dimensions MUST use CSS custo
   background: var(--color-error-subtle, #fff0f0);            // Hardcoded fallback
   color: var(--color-success, #27ae60);                      // Hardcoded fallback
   margin-bottom: var(--space-6, 1.5rem);                     // Hardcoded fallback
-  border: 1px solid var(--border-primary, rgba(0,0,0,0.1));  // Hardcoded fallback
+  // ❌ NEVER invent undeclared tokens
+  background-color: var(--surface-card);                     // Nonexistent token! Use --surface-primary
+  color: var(--color-brand-blue);                            // Nonexistent token!
 }
 ```
+
+- **No Inventing Tokens:** Never use undeclared token names. All design tokens must exist in the design system token registry (e.g. `variables.less`). If a token is needed, declare it in the design system first.
+- **Compose Global Control Classes:** Do NOT re-implement button, input, or card styles in component `.less`. Compose canonical classes directly in templates (e.g. `<button class="btn btn-secondary">`) and only apply local positioning.
 
 ---
 
@@ -162,7 +167,9 @@ Angular compiles component styles in isolated contexts and does **not** inherit 
 
 ### ❌ NEVER
 - Include fallback values in `var(--token, fallback)`.
+- Use undeclared or nonexistent token names (e.g. `--surface-card`).
 - Hardcode color hex/rgb/hsl values.
+- Re-declare button, form control, or card styles locally instead of composing global classes (`.btn`, `.form-control`).
 - Duplicate common UI patterns (switches, avatars, status pills) across multiple component `.less` files.
 - Let component stylesheets exceed 200 lines without a deeper review for un-lifted shared primitives.
 - Use `!important`.

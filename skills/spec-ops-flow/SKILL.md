@@ -145,6 +145,7 @@ When the maintenance rule activates for a file under a `specops/` directory, kee
 - **Plan-level** `decisions.md`: tactical implementation choices, bug workarounds, component-local decisions.
 - **Domain-level** `decisions.md`: subsystem architectural rules, data model constraints, cross-plan policies.
 - Log meaningful decisions, pivots, and defers as a prose append-log (`Date | Status | Summary`). Not frontmatter.
+- **Strict Prohibition on Status Updates:** NEVER log task progress, completion milestones, or status tracking in `decisions.md`. Execution state belongs exclusively in runbook frontmatter (`status: done`) and group indexes. `decisions.md` is reserved strictly for architectural trade-offs, design choices, bug workarounds, and policies.
 
 ### Boundaries
 

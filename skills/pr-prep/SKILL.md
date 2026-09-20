@@ -57,7 +57,15 @@ Never rely solely on standard unit tests. You must inspect project scripts and e
 
 ---
 
-### Phase 3: Authorization, Multi-Tenant & Auth Lifecycle Audit
+### Phase 3: Standing Instructions & Code Diff Cleanliness Audit
+
+Before proceeding, perform an adversarial scan of the branch diff (`git diff origin/main...HEAD` or equivalent) against all applicable repository instructions (`ai-docs/instructions/` and `.agents/rules/`).
+- Verify diff adherence to the **High-Attention Universal Rules** in [instructions/general.md](../../instructions/general.md) and all relevant domain guidelines (`instructions/frontend/`, `instructions/backend/`, etc.).
+- Ensure changes are free of artificial compatibility shims, maintain strict type contracts, and preserve clear separation of presentation and logic.
+
+---
+
+### Phase 4: Authorization, Multi-Tenant & Auth Lifecycle Audit
 
 Walk through all modified code with "adversarial multi-tenant" eyes:
 
@@ -75,7 +83,7 @@ Walk through all modified code with "adversarial multi-tenant" eyes:
 
 ---
 
-### Phase 4: UX & Item-Level Filtering Sanity
+### Phase 5: UX & Item-Level Filtering Sanity
 
 1. **Container vs. Item-Level Filtering**:
    - When filtering lists, tables, or Kanban boards: does searching for an item properly filter sub-items, or does it render non-matching sub-items because their parent container matched?
@@ -87,10 +95,11 @@ Walk through all modified code with "adversarial multi-tenant" eyes:
 
 ---
 
-### Phase 5: PR Readiness Summary Output
+### Phase 6: PR Readiness Summary Output
 
 After completing all phases, emit a structured audit report summarizing:
 - **Test Results**: Unit suites passed, Integration/Security suites passed, Build status.
 - **Git Hygiene**: `git diff --check` status, clean working tree, clean commit history.
+- **Diff Cleanliness**: Zero type evasion, zero backward-compatibility shims, zero HTML in logic, zero styling violations.
 - **Lifecycle & Security**: Auth lifecycle reset verified, security rules validated.
 - **PR Readiness Verdict**: Explicit `READY FOR PR` or bulleted list of blocking items to resolve first.

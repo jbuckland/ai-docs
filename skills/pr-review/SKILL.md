@@ -48,6 +48,9 @@ Serve as the proactive safety net for systemic, cross-cutting concerns that huma
    - Identify edge cases unit tests often miss (concurrency/race conditions, error recovery, offline behavior) and flag items requiring physical browser/device testing (e.g., file downloads, native print dialogs, canvas rendering).
 8. **Documentation & Specification Alignment**:
    - Verify that code changes align with active architectural specs, change plans, and changelog/versioning standards.
+9. **Standing Instructions & Code Diff Cleanliness Sentinel**:
+   - Verify diff adherence to repository standing instructions (`ai-docs/instructions/` and `.agents/rules/`).
+   - Actively audit against the **High-Attention Universal Rules** in [instructions/general.md](../../instructions/general.md) and relevant domain standards, flagging artificial compatibility shims, type evasion, and presentation leakage.
 
 ---
 

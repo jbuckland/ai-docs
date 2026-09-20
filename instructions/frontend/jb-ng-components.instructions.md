@@ -96,7 +96,8 @@ private transformToViewItem(calling: Calling): CallingViewItem {
 ```
 
 **Rules:**
-- ViewItem interfaces extend base entity
+- ViewItem interfaces MUST extend base entity (do not duplicate properties)
+- ViewItems contain PURE structured data—never generate HTML markup or tag strings in ViewItem models
 - Transformation logic in component service
 - Use computed signals for reactive view items
 

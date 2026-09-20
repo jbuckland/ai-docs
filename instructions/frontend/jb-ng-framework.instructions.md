@@ -174,6 +174,26 @@ Maintain a clean, consistent folder hierarchy for all Angular features:
 - **Routes:** `<feature-name>.routes.ts` declared at the feature root.
 - **Components:** Sub-views and components live in dedicated child folders: `src/app/features/<feature-name>/components/<component-name>/`.
 
+## Component-Specific ViewItems
+
+- **Component-Specific ViewItems:** UI view models unique to a component belong in `src/app/features/<feature-name>/components/<component-name>/` (or colocated inside `<component-name>.service.ts`), extending the canonical domain entity.
+- **Shared Domain Models:** Shared domain models belong in the project's canonical domain model location (see [jb-ts-conventions.instructions.md](./jb-ts-conventions.instructions.md)), never defined inside individual component folders.
+
+## Browser Globals & Storage Abstraction
+
+- **Testable Services (Strict Ban):** **NEVER** directly access browser global objects (`window`, `document`, `localStorage`, `sessionStorage`) inside services. Services must remain pure, mockable, and testable.
+  - **Storage Services:** Inject dedicated storage abstraction services (e.g., `LocalStorageService`) that safely handle SSR, testing mocks, and storage exceptions.
+  - **Platform Tokens:** When DOM or platform access is unavoidable, use Angular's canonical tokens:
+    ```typescript
+    import { PLATFORM_ID, inject } from '@angular/core';
+    import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+
+    const document = inject(DOCUMENT);
+    const platformId = inject(PLATFORM_ID);
+    const isBrowser = isPlatformBrowser(platformId);
+    ```
+- **UI Components (Pragmatic Exception):** Direct browser access (e.g., calling `window.print()` or simple scrolling) is acceptable in small quantities inside component presentation methods where injecting platform abstraction tokens would be unnecessary ceremony.
+
 ## Vite Compilation & Path Mapping Gotchas
 
 - **NG0203 Error on `@angular/*` Aliases:** Avoid adding `@angular/*` path aliases to `tsconfig.json` `paths`. In Vite-based Angular setups, custom aliases to Angular core libraries cause dual-module instantiation, resulting in runtime `NG0203: inject() must be called from an injection context` exceptions.

@@ -57,8 +57,8 @@ export class MyService {
   
   // Protected: Template-accessed properties (PREFERRED for new code)
   protected readonly layoutId = 'myComponent';
-  protected readonly $items: WritableSignal<Item[]> = signal([]);
-  protected readonly $count: Signal<number> = computed(() => this.$items().length);
+  protected readonly items: WritableSignal<Item[]> = signal([]);
+  protected readonly count: Signal<number> = computed(() => this.items().length);
   
   // Private: Internal implementation only
   private readonly _dataService = inject(DataService);
@@ -348,6 +348,141 @@ class DataStore<T> {
 - Use generics for reusable, type-safe code
 - Name generic parameters descriptively (T for type, K for key, V for value)
 - Constrain generics when needed (`<T extends BaseType>`)
+
+---
+
+## Type Safety & Boundary Contracts
+
+### Strict Ban on Type Evasion & Double-Casting
+```typescript
+// ❌ FORBIDDEN: Double-casting through unknown or untyped bags
+const snapshot = data as unknown as MeetingSnapshot;
+const payload = response as unknown as Record<string, unknown>;
+
+// ✅ CORRECT: Strong types at the source or explicit type guards
+const snapshot: MeetingSnapshot = await dataService.load();
+if (isMeetingSnapshot(data)) {
+  // data is narrowed safely
+}
+```
+**Rules:**
+- NEVER double-cast through `unknown` (`as unknown as TargetType`).
+- Never cast to `Record<string, unknown>` or `any` at storage or service boundaries.
+- Define explicit, strongly typed contracts for data adapters and service methods.
+
+### Canonical Domain Model Integrity
+```typescript
+// ❌ FORBIDDEN: Permissive index signatures or arbitrary Record extension
+export interface AgendaItem extends Record<string, unknown> {
+  id: string;
+  [key: string]: unknown;
+}
+
+// ✅ CORRECT: Strict, exhaustive property declarations
+export interface AgendaItem {
+  id: string;
+  title: string;
+  order: number;
+}
+```
+**Rules:**
+- Domain models and canonical entity interfaces MUST NOT declare index signatures (`[key: string]: unknown` or `[key: string]: any`).
+- Do not extend `Record<string, unknown>` on domain entities. Declare all known properties explicitly.
+- **Canonical Domain Model Location:** Shared domain entities, pure entity utilities, and domain constants belong in the project's canonical domain model directory (e.g. `src/app/core/domain/<name>.ts`, `packages/models/`, or equivalent), without a redundant `.domain` suffix (e.g. `sacrament.ts`, not `sacrament.domain.ts`). Never place canonical domain models inside individual component folders.
+
+### Discriminated Unions for Polymorphic Entities & Method Payloads
+```typescript
+// ❌ FORBIDDEN: Monolithic interface with grab-bag of optional variant fields
+interface AgendaItem {
+  type: 'Speaker' | 'Song';
+  speakerName?: string;
+  talkTopic?: string;
+  hymnNumber?: number;
+  hymnTitle?: string;
+}
+
+// ✅ CORRECT: Strict discriminated union
+export interface SpeakerAgendaItem {
+  type: 'Speaker';
+  speakerName: string;
+  talkTopic: string;
+}
+
+export interface SongAgendaItem {
+  type: 'Song';
+  hymnNumber: number;
+  hymnTitle: string;
+}
+
+export type AgendaItem = SpeakerAgendaItem | SongAgendaItem;
+```
+**Rules:**
+- Polymorphic entities with distinct variant structures MUST be modeled as discriminated unions on a single literal property (e.g. `type: 'Speaker' | 'Song'`).
+- Service methods that accept polymorphic payloads (e.g., section saves) must use discriminated unions or typed method overloads to prevent mismatched arguments.
+
+---
+
+## Active Development & Refactoring Discipline
+
+### Direct Refactoring Over Compatibility Shims
+```typescript
+// ❌ FORBIDDEN: Artificial backward-compatibility shims
+export type PulpitPronouns = GrammaticalPronouns; // Renamed alias shim
+export const formatPulpitTime = format12HourTime; // Re-export shim
+get canPlan() { return this.userPermissions().canPlan; } // Legacy getter shim
+
+// ✅ CORRECT: Refactor all consumers directly
+import { GrammaticalPronouns } from './grammatical-pronouns';
+import { format12HourTime } from 'core/utils/date-utils';
+// Consumers access service.userPermissions().canPlan directly
+```
+**Rules:**
+- **Direct Refactoring Over Compatibility Layers:** When refactoring, renaming, or evolving types, utilities, or services, refactor all call sites directly across the workspace:
+  - **Branches off `master`:** Any branch other than `master` is actively in development—zero compatibility shims or transitional aliases are permitted.
+  - **Code on `master`:** Even when refactoring existing code on `master`, prefer exhaustively updating all consumers and call sites directly rather than leaving behind transitional "compatibility layers" or shims.
+  - **Clean Code Default:** Compatibility layers should only be introduced when strictly necessary (e.g., external third-party consumers or independent deployment boundaries). The default across all repositories is clean, direct refactoring without artificial compatibility debt.
+- **Forbidden Shims:** NEVER create transitional type aliases (`type Old = New`), function re-export aliases (`export const oldFn = newFn`), or legacy proxy getters/facades to paper over a refactor.
+
+### Strict Separation of Markup and Logic
+```typescript
+// ❌ FORBIDDEN: Constructing HTML in TypeScript classes
+export class PulpitStepViewItem {
+  readonly fullScriptHtml = `<strong>${this.title}</strong>: <span>${this.text}</span>`;
+}
+
+// ✅ CORRECT: Pure structured data in TypeScript, markup in template
+export interface PulpitStepViewItem {
+  readonly title: string;
+  readonly text: string;
+}
+// In template: <strong>{{ item.title }}</strong>: <span>{{ item.text }}</span>
+```
+**Rules:**
+- Never generate raw HTML strings, tags, or template markup inside TypeScript classes, services, or ViewItem models.
+- Presentation markup belongs exclusively in component templates (`.component.html`) leveraging native Angular `@if` and `@for` control flow.
+
+### Control Flow & Ternary Restrictions
+```typescript
+// ❌ FORBIDDEN: Nested or multi-branch ternaries
+const item = isSpeaker ? createSpeaker() : isSong ? createSong() : createDefault();
+const label = conditionA ? (conditionB ? 'Both' : 'A') : 'None';
+
+// ✅ CORRECT: Explicit control flow or structured lookup
+if (isSpeaker) {
+  return createSpeaker();
+} else if (isSong) {
+  return createSong();
+}
+return createDefault();
+```
+**Rules:**
+- NEVER use nested ternaries (`a ? b : c ? d : e`).
+- Do NOT use ternaries for multi-branch array sorting, complex conditional logic, or side effects. Use clear `if/else` statements.
+- In templates and option lists, use structured option models with explicit `value` and `label` properties rather than inline ternary string replacements.
+
+### Speculative Modeling & Synthetic Form State
+- **No Speculative Domain Properties:** Never introduce unrequested properties, synthetic category taxonomies, or placeholder fields into domain models without an explicit design requirement.
+- **No Dummy Domain Objects for Forms:** Do not initialize uncommitted or draft form state with synthetic domain objects containing fake IDs (`id: ''`). Use dedicated draft types, `Partial<T>`, or `Omit<T, 'id'>`.
 
 ---
 

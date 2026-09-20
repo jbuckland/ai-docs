@@ -210,4 +210,4 @@ docs/
 
 ## Related Documentation
 
-See [jb-general-annotations.instructions.md](../patterns/jb-general-annotations.instructions.md) for in-code annotation system.
+See [annotations skill](../../skills/annotations/SKILL.md) for the in-code annotation system.
