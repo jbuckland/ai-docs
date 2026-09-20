@@ -28,7 +28,7 @@ Configuration overrides live in `config.user.md` in this skill's directory (copi
        `- **YYYY-MM-DD** [workspace]: Context/Problem: "raw annotation snippet" → action taken`
        (Include the context/problem so subsequent agents understand the concrete anti-pattern being addressed).
      - Increment the count in the category summary at the top of the tracker (or add the new category if newly created).
-     - If the category has reached or exceeded `thresholdAlert` entries, synthesize the pattern and alert the user with a specific rule suggestion.
+     - When a pattern of similar annotations addressing the same underlying problem emerges, audit existing rules first to check if one exists; if so, diagnose why it failed to be followed and propose a solution, or if none exists, propose a specific rule.
    - **NO (General Question, Comment, or Domain Decision):**
      - Answer, clarify, or implement the requested decision directly inline. Do not log to the code correction tracker.
 4. Update the content so the annotation is no longer needed.
@@ -52,14 +52,20 @@ The tracker file is maintained as:
 The tracker is an empirical tool to discover where permanent rules are needed. **Never focus on exact entry counts or raw numbers** (e.g. NEVER say "Category X has reached N entries" or "There are now 3 entries under Type Safety").
 
 Because broad categories (such as `Type Safety`) can encompass dozens of different issues, an arbitrary count threshold does NOT mean a rule should be created. Instead, agents must be smarter:
-1. **Focus on Recurring Specifics, Not Counts:** Only suggest a new rule when you observe a pattern of *similar enough annotations* addressing the exact same underlying problem or anti-pattern across multiple reviews (e.g., repeatedly eliminating `as unknown as Type` double-casts, or repeatedly replacing hardcoded hex colors with CSS tokens).
+1. **Focus on Recurring Specifics, Not Counts:** Only proceed when you observe a pattern of *similar enough annotations* addressing the exact same underlying problem or anti-pattern across multiple reviews (e.g., repeatedly eliminating `as unknown as Type` double-casts, repeatedly replacing hardcoded hex colors with CSS tokens, or creating backward-compatibility shims on active code).
 2. **Synthesize the Pattern:** Articulate the precise technical anti-pattern being corrected.
-3. **Formulate a Specific, Actionable Rule:** Draft the exact, concrete rule text that directly prevents that specific mistake.
-4. **Identify the Target Rule File:** Point to the exact instruction file in `ai-docs/instructions/` (or repository `.agents/rules/`).
-5. **Prompt with the Pattern Nudge:** Alert the user naturally to the recurring pattern, focusing on conveying the core ideas:
+3. **Audit Existing Rules First (MANDATORY):** Before proposing a new rule, inspect existing instructions (`ai-docs/instructions/`), repository rules (`.agents/rules/`), and user rules to determine if a rule covering this issue **already exists**:
+   - **If a rule already exists:**
+     - Do NOT propose a duplicate or redundant rule.
+     - Determine **why that rule isn't being followed** (e.g., Is it ambiguously worded or passive? Is it buried in an obscure file that agents don't see? Is it framed too narrowly or project-specifically? Is it missing automated lint/test enforcement? Is it absent from the root rules index?).
+     - Formulate a **concrete solution** to make the existing rule effective (e.g., sharpen the wording into an explicit negative constraint, promote/relocate it to a higher-visibility rule file or entry point, recommend adding automated linting or test verification, or restructure instruction indexing).
+   - **If NO rule exists:**
+     - Formulate a specific, actionable rule that directly prevents that specific mistake.
+     - Identify the exact target instruction or rule file where it belongs in `ai-docs/instructions/` (or repository `.agents/rules/`).
+4. **Prompt with the Pattern Nudge:** Alert the user naturally to the recurring pattern, focusing on conveying the core ideas:
    - Identify the concrete recurring problem or anti-pattern observed across reviews.
-   - Propose specific, actionable rule wording to prevent it.
-   - Suggest the target instruction or rule file where it belongs.
+   - If an existing rule covers it: cite the existing rule and file, explain why it was violated, and propose the solution to enforce or clarify it.
+   - If no existing rule covers it: propose specific, actionable rule wording and name the target rule file.
 
 Do not modify permanent rule files automatically. Wait for the user's explicit directive.
 
@@ -89,7 +95,9 @@ Logged code corrections (to `annotation-tracker.md`):
 - `[Category / Subcategory]`: **[Context / Problem]**: "annotation quote" → action taken
 
 Pattern Alert (when a recurring pattern is identified):
-- Highlight the recurring anti-pattern, propose specific rule text, and name the target rule file.
+- Highlight the recurring anti-pattern.
+- If an existing rule covers it: cite the existing rule and file, diagnose why it was not followed, and propose the solution to enforce or clarify it.
+- If no existing rule covers it: propose specific rule text and name the target rule file.
 
 Escalated annotations:
 - `{!ask Bob}`: Captured as an open question about deployment ownership.

@@ -14,7 +14,7 @@ This document is a centralized, empirical ledger for tracking John's review anno
   - *Domain Model Contracts & Index Signatures:* 3 entries
   - *Discriminated Unions & ViewItem Inheritance:* 3 entries
 - **Styling & Theming:** 6 entries
-- **Code Hygiene & Logic Clarity:** 5 entries
+- **Code Hygiene & Logic Clarity:** 6 entries
 - **Component Scope & Modularity:** 3 entries
 - **Domain Modeling & Spec Discipline:** 2 entries
 - **Angular Signals & Reactivity:** 2 entries
@@ -66,6 +66,7 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: **Ternary used for multi-branch array sorting**: `"I don't like this ternary"` → Replaced return ternary in `HymnDataService.searchHymns` with explicit `if/else` branches.
 - **2026-09-19** [`myward`]: **Inline ternary template substitution for options**: `"yuck!"` → Replaced inline ternary string replacement in select dropdown with structured `LeadershipOfficerOption` model containing explicit `value` and `label` properties.
 - **2026-09-19** [`myward`]: **Duplicated common execution paths across save section branches**: `"dedupe the branches to have 'always run' code happen after the if block"` → Extracted `buildSectionPayload(section)` helper and unified common `saveSection.emit()` and dirty-clearing logic after section dispatch.
+- **2026-09-20** [`myward`]: **Artificial backward-compatibility wrappers on code in active development**: `"do NOT create 'backward-compatibility' structures for code we're activly working on!!"` → Removed backward-compatibility shims (`canPlan`, `canMusic`, etc.) and refactored all consumers in the active feature to consume `service.userPermissions()` directly.
 
 ## Domain Modeling & Spec Discipline
 
