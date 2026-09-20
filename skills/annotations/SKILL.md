@@ -54,10 +54,12 @@ The tracker is an empirical tool to discover where permanent rules are needed. *
 Because broad categories (such as `Type Safety`) can encompass dozens of different issues, an arbitrary count threshold does NOT mean a rule should be created. Instead, agents must be smarter:
 1. **Focus on Recurring Specifics, Not Counts:** Only suggest a new rule when you observe a pattern of *similar enough annotations* addressing the exact same underlying problem or anti-pattern across multiple reviews (e.g., repeatedly eliminating `as unknown as Type` double-casts, or repeatedly replacing hardcoded hex colors with CSS tokens).
 2. **Synthesize the Pattern:** Articulate the precise technical anti-pattern being corrected.
-3. **Formulate a Specific, Actionable Rule ("Rule X"):** Draft the exact, concrete rule text that directly prevents that specific mistake.
+3. **Formulate a Specific, Actionable Rule:** Draft the exact, concrete rule text that directly prevents that specific mistake.
 4. **Identify the Target Rule File:** Point to the exact instruction file in `ai-docs/instructions/` (or repository `.agents/rules/`).
-5. **Prompt with the Smart Pattern Nudge:**
-   > "Pattern Alert: Hey, I see you seem to be correcting this specific thing: [describe concrete recurring anti-pattern]. Would you like to make specific rule: '[concrete rule text]' in `[target rule file]`?"
+5. **Prompt with the Pattern Nudge:** Alert the user naturally to the recurring pattern. Do not prescribe exact wording; focus on conveying the core ideas:
+   - Identify the concrete recurring problem or anti-pattern observed across reviews.
+   - Propose specific, actionable rule wording to prevent it.
+   - Suggest the target instruction or rule file where it belongs.
 
 Do not modify permanent rule files automatically. Wait for the user's explicit directive.
 
@@ -87,7 +89,7 @@ Logged code corrections (to `annotation-tracker.md`):
 - `[Category / Subcategory]`: **[Context / Problem]**: "annotation quote" → action taken
 
 Pattern Alert (when a recurring pattern is identified):
-- "Hey, I see you seem to be correcting this specific thing: [specific recurring anti-pattern]. Would you like to make specific rule: '[proposed rule text]' in `[target rule file]`?"
+- Highlight the recurring anti-pattern, propose specific rule text, and name the target rule file.
 
 Escalated annotations:
 - `{!ask Bob}`: Captured as an open question about deployment ownership.
