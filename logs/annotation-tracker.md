@@ -9,15 +9,15 @@ This document is a centralized, empirical ledger for tracking John's review anno
 
 ## Category Summary
 
-- **Type Safety:** 9 entries
-  - *Boundary Casting & Type Evasion:* 3 entries
+- **Type Safety:** 10 entries
+  - *Boundary Casting & Type Evasion:* 4 entries
   - *Domain Model Contracts & Index Signatures:* 3 entries
   - *Discriminated Unions & ViewItem Inheritance:* 3 entries
-- **Styling & Theming:** 5 entries
+- **Styling & Theming:** 6 entries
+- **Code Hygiene & Logic Clarity:** 5 entries
 - **Component Scope & Modularity:** 3 entries
-- **Code Hygiene & Logic Clarity:** 3 entries
-- **Domain Modeling & Spec Discipline:** 1 entry
-- **Angular Signals & Reactivity:** 1 entry
+- **Domain Modeling & Spec Discipline:** 2 entries
+- **Angular Signals & Reactivity:** 2 entries
 - **SpecOps Planning & Documentation:** 1 entry
 - **File & Domain Naming:** 1 entry
 - **UI Fallbacks & Placeholder Copy:** 1 entry
@@ -30,6 +30,7 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: **Double-casting to unknown at storage adapter boundary**: `"this got worse by casting to unknown then to Record<string,unknown>. These should be stronger types"` → Typed the persistence adapter boundary directly to prevent callers from casting through `unknown` to `Record<string, unknown>`.
 - **2026-09-19** [`myward`]: **Untyped payload passed to service save method**: `"same issue as above"` → Replaced untyped section payloads with strongly typed section data payloads before calling the service save method.
 - **2026-09-19** [`myward`]: **Feature service double-casting data service responses**: `"I want to avoid having to as unknown as ..."` → Typed `SacramentDataService.load()` and `watch()` to return domain `MeetingSnapshot`, eliminating `as unknown as MeetingSnapshot` double-casts across consuming feature services and components.
+- **2026-09-19** [`myward`]: **Inlined string literal union for UI drawer state**: `"should we use a strong type here?"` → Defined exported `ActiveAgendaDrawer` union type in `sacrament-agenda.ts` and strongly typed `activeDrawer` signal.
 
 ## Type Safety / Domain Model Contracts & Index Signatures
 
@@ -50,6 +51,7 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: **Duplicated liturgical CSS rules across individual components**: `"it looks like we're using the same style..."` → Consolidated duplicated component styles into shared liturgical UI primitives in `agenda.less`.
 - **2026-09-19** [`myward`]: **Redundant re-declaration of global drawer, button, form, and avatar primitives in component stylesheet**: `"review this for style duplication and other style rule violations"` → Eliminated duplicated global primitives (`.drawer-overlay`, `.drawer-panel`, `.form-control`, `.btn-*`, `.avatar-*`), reduced stylesheet from 614 lines to 267 lines, and inherited canonical design system classes from `src/styles/components/`.
 - **2026-09-19** [`myward`]: **Fallback parameters in CSS var() expressions and off-palette colors**: `"there are many style rule violations that need resolved here"` → Eliminated fallback parameters in all `var()` calls, replaced incorrect `--color-surface` and raw hex/rgba values with canonical `--surface-primary`, `--color-music`, `--text-inverse` tokens from `variables.less`.
+- **2026-09-19** [`myward`]: **Duplicated card, button, and form control styles in component stylesheet**: `"are we duplicating any card, pill, button, or other styles here?"` → Eliminated redundant button heights, form-control box sizing, and card background/border styles from `sacrament-agenda-builder.component.less` and inherited shared design system classes (`.card-secondary`, `.card-compact`).
 
 ## Component Scope & Modularity
 
@@ -62,14 +64,18 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: **Dummy synthetic objects used to back draft forms**: `"ah, I see. You just moved the smell somewhere else..."` → Eliminated synthetic empty domain objects (`id: ''`) used to back draft forms.
 - **2026-09-19** [`myward`]: **Nested ternary expressions controlling item instantiation**: `"remove ternary"` → Replaced nested ternaries with explicit control-flow branches for item creation.
 - **2026-09-19** [`myward`]: **Ternary used for multi-branch array sorting**: `"I don't like this ternary"` → Replaced return ternary in `HymnDataService.searchHymns` with explicit `if/else` branches.
+- **2026-09-19** [`myward`]: **Inline ternary template substitution for options**: `"yuck!"` → Replaced inline ternary string replacement in select dropdown with structured `LeadershipOfficerOption` model containing explicit `value` and `label` properties.
+- **2026-09-19** [`myward`]: **Duplicated common execution paths across save section branches**: `"dedupe the branches to have 'always run' code happen after the if block"` → Extracted `buildSectionPayload(section)` helper and unified common `saveSection.emit()` and dirty-clearing logic after section dispatch.
 
 ## Domain Modeling & Spec Discipline
 
 - **2026-09-19** [`myward`]: **Premature synthetic category taxonomy in domain data**: `"yeah, not loving this. My instinct is to drop 'category' until we have a proper system in place"` → Dropped synthetic `category` field from `HymnCatalogItem` and removed category pill UI, deferring liturgical classification until a proper topic-tagging architecture is established.
+- **2026-09-19** [`myward`]: **Preset leadership strings hardcoded in UI component**: `"this seems like the wrong place for these strings to be defined"` → Extracted presiding and conducting officer presets into canonical domain collections (`PRESIDING_OFFICER_OPTIONS`, `CONDUCTING_OFFICER_OPTIONS`) in `sacrament-agenda.ts`.
 
 ## Angular Signals & Reactivity
 
 - **2026-09-19** [`myward`]: **Imperative `@ViewChild` component references**: `"why do we need a viewchild reference? feels clunky"` → Replaced imperative `@ViewChild` component reference with reactive Angular Signals (`input`, `output`, `signal`).
+- **2026-09-19** [`myward`]: **Loose individual permission signals instead of structured permission state**: `"I'm thinking it would be a little cleaner to wrap all the 'can*' permissions into a single object, instead of 5 loose signals"` → Unified 5 loose capability signals into a single `SacramentPermissions` interface and `can = computed<SacramentPermissions>()` object signal with backward-compatible getters.
 
 ## SpecOps Planning & Documentation
 
