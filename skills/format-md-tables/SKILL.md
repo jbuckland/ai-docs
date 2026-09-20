@@ -50,7 +50,7 @@ This skill includes a Node.js utility script located at:
 Run the formatter on any target markdown file:
 
 ```powershell
-node c:\stuff-john\github\ai-docs\skills\format-md-tables\scripts\format-tables.js <path-to-file> {!make this a relative path}
+node ./skills/format-md-tables/scripts/format-tables.js <path-to-file>
 ```
 
 ### Options
@@ -60,10 +60,10 @@ node c:\stuff-john\github\ai-docs\skills\format-md-tables\scripts\format-tables.
 
 ```powershell
 # Preview changes without modifying
-node c:\stuff-john\github\ai-docs\skills\format-md-tables\scripts\format-tables.js .\docs\architecture.md --check
+node ./skills/format-md-tables/scripts/format-tables.js .\docs\architecture.md --check
 
 # Custom threshold
-node c:\stuff-john\github\ai-docs\skills\format-md-tables\scripts\format-tables.js .\docs\architecture.md --max-width 100
+node ./skills/format-md-tables/scripts/format-tables.js .\docs\architecture.md --max-width 100
 ```
 
 ---

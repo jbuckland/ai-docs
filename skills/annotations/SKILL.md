@@ -49,14 +49,15 @@ The tracker file is maintained as:
 
 ## Smart Pattern Alerts & Rule Codification Nudge
 
-The tracker is an empirical tool to discover where permanent rules are needed. **Do not merely state raw counts** (e.g., avoid generic notifications like "Category X has reached N entries").
+The tracker is an empirical tool to discover where permanent rules are needed. **Never focus on exact entry counts or raw numbers** (e.g. NEVER say "Category X has reached N entries" or "There are now 3 entries under Type Safety").
 
-Furthermore, because broad categories (like `Type Safety`) could encompass dozens of different rules, **agents should only suggest a new rule when there is an identifiable pattern of similar enough annotations** addressing a specific, concrete problem:
-1. **Cluster by Specific Sub-Pattern:** Examine entries within a category or subcategory to find recurring, similar corrections (e.g., repeated instances of double-casting via `as unknown as Type`, or repeated hardcoded hex colors instead of CSS tokens).
-2. **Formulate a Specific, Actionable Rule Draft ("Rule X"):** Draft the exact rule text targeting that concrete recurring issue.
-3. **Identify the Target Instruction or Rule File** in `ai-docs/instructions/` (or repository `.agents/rules/`).
-4. **Prompt the User with the Tailored Suggestion:**
-   > "Pattern Alert: I notice you've repeatedly corrected [specific issue]. Would you like to codify a standing rule: '[proposed rule text]' in `[target rule file]`?"
+Because broad categories (such as `Type Safety`) can encompass dozens of different issues, an arbitrary count threshold does NOT mean a rule should be created. Instead, agents must be smarter:
+1. **Focus on Recurring Specifics, Not Counts:** Only suggest a new rule when you observe a pattern of *similar enough annotations* addressing the exact same underlying problem or anti-pattern across multiple reviews (e.g., repeatedly eliminating `as unknown as Type` double-casts, or repeatedly replacing hardcoded hex colors with CSS tokens).
+2. **Synthesize the Pattern:** Articulate the precise technical anti-pattern being corrected.
+3. **Formulate a Specific, Actionable Rule ("Rule X"):** Draft the exact, concrete rule text that directly prevents that specific mistake.
+4. **Identify the Target Rule File:** Point to the exact instruction file in `ai-docs/instructions/` (or repository `.agents/rules/`).
+5. **Prompt with the Smart Pattern Nudge:**
+   > "Pattern Alert: Hey, I see you seem to be correcting this specific thing: [describe concrete recurring anti-pattern]. Would you like to make specific rule: '[concrete rule text]' in `[target rule file]`?"
 
 Do not modify permanent rule files automatically. Wait for the user's explicit directive.
 
@@ -83,10 +84,10 @@ Resolved annotations:
 - `{!what's a better way?}`: Replaced the proposed approach with the existing project pattern.
 
 Logged code corrections (to `annotation-tracker.md`):
-- `[Category]`: Context/Problem: "annotation quote" → action taken (Total in category: N)
+- `[Category / Subcategory]`: **[Context / Problem]**: "annotation quote" → action taken
 
-Pattern Alert (if threshold reached):
-- I notice you've repeatedly corrected [specific anti-pattern]. Would you like to codify a standing rule: '[proposed rule text]' in `[target rule file]`?
+Pattern Alert (when a recurring pattern is identified):
+- "Hey, I see you seem to be correcting this specific thing: [specific recurring anti-pattern]. Would you like to make specific rule: '[proposed rule text]' in `[target rule file]`?"
 
 Escalated annotations:
 - `{!ask Bob}`: Captured as an open question about deployment ownership.
