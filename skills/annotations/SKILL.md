@@ -23,12 +23,13 @@ Configuration overrides live in `config.user.md` in this skill's directory (copi
 2. Read enough surrounding context to understand the annotation's intent.
 3. Determine intent: **Is the user directing code or implementation to be different?**
    - **YES (Code / Style / Architecture Correction):**
-     - Assign an **organic, descriptive category** (e.g. `Type Safety`, `Styling & Tokens`, `Angular Signals`, `Component Scope`, `Code Hygiene`, `State Management`, etc.). Do NOT force fit into a rigid closed list—allow new categories to emerge naturally as patterns arise.
-     - Append the entry to the configured `logPath` under that category's section as a bullet point:
-       `- **YYYY-MM-DD** [workspace]: Context/Problem: "raw annotation snippet" → action taken`
-       (Include the context/problem so subsequent agents understand the concrete anti-pattern being addressed).
-     - Increment the count in the category summary at the top of the tracker (or add the new category if newly created).
-     - When a pattern of similar annotations addressing the same underlying problem emerges, audit existing rules first to check if one exists; if so, diagnose why it failed to be followed and propose a solution, or if none exists, propose a specific rule.
+     - **Scan existing tags first:** Review the active tags in the tracker (`logPath`) to see if existing tags match the nature of the correction before inventing new ones.
+     - **Assign 1–3 descriptive tags:** Choose 1–3 tags that describe the nature of the correction (e.g., `type-safety`, `css-tokens`, `style-duplication`, `no-shims`, `utility-colocation`, `domain-modeling`). Tags are lowercase, hyphen-separated.
+     - **Append entry to tracker:**
+       `- **YYYY-MM-DD** [workspace] [tag1, tag2]: **[Context / Problem]**: "raw annotation snippet" → action taken`
+       (Include rich context and concrete anti-pattern so subsequent agents understand the issue).
+     - **Update tag summary:** Increment counts in the active tag summary at the top of the tracker (or add new tag if newly introduced).
+     - When a pattern of similar annotations emerges under a tag or combination of tags, audit existing rules first to check if one exists; if so, diagnose why it failed to be followed and propose a solution, or if none exists, propose a specific rule.
    - **NO (General Question, Comment, or Domain Decision):**
      - Answer, clarify, or implement the requested decision directly inline. Do not log to the code correction tracker.
 4. Update the content so the annotation is no longer needed.
@@ -36,16 +37,16 @@ Configuration overrides live in `config.user.md` in this skill's directory (copi
 6. Preserve the document's existing tone, structure, heading style, and formatting.
 7. Report what happened to each annotation in the final response.
 
-## Log Structure, Organic Categories & Subcategories
+## Log Structure & Tag System
 
-The tracker file is maintained as:
-- **Summary Overview:** A compact list or count of all active categories, subcategories, and their total entries.
-- **Category & Subcategory Sections:** Markdown sections per category (`## Category Name` or `## Category / Subcategory`), containing a chronological bullet list of entries.
-- **Organic Evolution & Subcategories:** Categories are open-ended. When a category accumulates 4 or more entries (such as `Type Safety` or `Code Hygiene`), agents must proactively inspect and evaluate the entries, but decompose them into focused subcategories only when appropriate (e.g. when distinct, coherent sub-patterns naturally emerge). Do not force artificial sub-groupings if the entries all address the same single concept.
-- **Reorganizing & Adjusting Log Categories:** Agents are explicitly authorized and encouraged to adjust the categorization and subcategorization of existing entries in the tracker whenever it makes patterns clearer and more actionable.
+The tracker file is maintained with a tag-based architecture:
+- **Active Tags Summary:** An alphabetical or frequency-ordered list of all active tags and their occurrence counts.
+- **Scanning Tags First:** Before logging a new entry, agents must scan the existing tag list. Reuse established tags when applicable to prevent synonymous tag fragmentation (e.g., prefer `style-duplication` over creating `duplicate-styles`).
+- **1–3 Tags Per Entry:** Each entry receives 1–3 tags determined by the adding agent that capture its key aspects (e.g., `[styling, style-duplication]`, `[type-safety, domain-modeling]`).
 - **Mandatory Entry Context:** Every entry must include rich context describing what was being worked on and the concrete problem/anti-pattern:
-  `- **YYYY-MM-DD** [workspace]: **[Context / Problem]**: "raw annotation snippet" → action taken`
+  `- **YYYY-MM-DD** [workspace] [tag1, tag2]: **[Context / Problem]**: "raw annotation snippet" → action taken`
   Do NOT record bare quotes without context. When reviewing the tracker, update existing entries that lack context.
+- **Refactoring & Consolidating Tags:** Agents are explicitly authorized and encouraged to consolidate or normalize tags in the tracker whenever patterns clarify.
 
 ## Smart Pattern Alerts & Rule Codification Nudge
 
@@ -99,7 +100,7 @@ Resolved annotations:
 - `{!what's a better way?}`: Replaced the proposed approach with the existing project pattern.
 
 Logged code corrections (to `annotation-tracker.md`):
-- `[Category / Subcategory]`: **[Context / Problem]**: "annotation quote" → action taken
+- `[tag1, tag2]`: **[Context / Problem]**: "annotation quote" → action taken
 
 Pattern Alert (when a recurring pattern is identified):
 - Highlight the recurring anti-pattern.
