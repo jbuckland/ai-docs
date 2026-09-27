@@ -10,15 +10,15 @@ This document is a centralized, empirical ledger for tracking John's review anno
 ## Active Tag Index
 
 - `domain-contracts`: 13 entries
+- `styling`: 12 entries
 - `type-safety`: 12 entries
-- `styling`: 10 entries
 - `domain-semantics`: 9 entries
 - `code-hygiene`: 8 entries
 - `architecture`: 7 entries
 - `data-layer`: 7 entries
-- `modular-components`: 5 entries
+- `style-duplication`: 7 entries
+- `modular-components`: 6 entries
 - `no-shims`: 5 entries
-- `style-duplication`: 5 entries
 - `utility-colocation`: 5 entries
 - `control-flow`: 4 entries
 - `css-tokens`: 4 entries
@@ -40,6 +40,8 @@ This document is a centralized, empirical ledger for tracking John's review anno
 
 ### 2026-09-27
 
+- **2026-09-27** [`myward`] `[styling, style-duplication]`: **Re-declaring global edit button inside component stylesheet**: `"//{!this sends red flags to me. I'm sure we have a global edit button defined somewhere that we should be using.}"` in `sunday-card.component.less` → Discovered existing `.btn-action, .btn-edit` in `buttons.less`, extended it with a `.btn-sm` compact variant, purged the local definition, and referenced global `.btn-edit.btn-sm` in template.
+- **2026-09-27** [`myward`] `[styling, style-duplication, modular-components]`: **Oversized component stylesheet containing un-lifted UI primitives**: `"//{!this fill is rather long, that's a red flag that we're probably duplicating style}"` in `sunday-card.component.less` → Lifted card header/footer bars (`.card-header-bar`, `.card-footer-bar`), card section labels, and state variants to `card.less`; lifted status dots (`.status-dot`), tag badges (`.badge-tag`), and count badges (`.badge-count`) to `badge.less`; lifted dashed slots (`.slot-empty`) to `agenda.less`; lifted notice banners (`.notice-banner`) to `panel.less`; lifted segmented controls (`.view-switch`, `.view-btn`) to `buttons.less`. Purged all duplicate blocks, reducing `sunday-card.component.less` by over 50%.
 - **2026-09-27** [`myward`] `[styling, style-duplication, zero-fallbacks]`: **Primitive re-declaration, var() fallbacks, and hardcoded colors in component LESS**: `"//{!this doesn't obey my styling rules. fix it}"` in `sunday-card.component.less` → Purged duplicated `.btn`, `.btn-*`, `.status-pill`, and `.avatar-placeholder` definitions; composed `.card .card-interactive` on host element; stripped all fallback values from `var()` calls and aligned with canonical design system tokens.
 - **2026-09-27** [`myward`] `[styling, zero-fallbacks, layout]`: **Fallback arguments in var() expressions and rigid card grid constraints**: `"//{!this also doesn't obey my styling rules. fix it. }"` in `sacrament-board.component.less` → Stripped all fallback arguments from `var()` calls in board toolbar and navigation, and updated `.multi-week-grid` to `repeat(4, minmax(0, 1fr))` with workspace `max-width: 100rem` to fit 4 week cards side-by-side.
 - **2026-09-27** [`myward`] `[type-safety, domain-contracts]`: **Anonymous complex object type declared inline in domain mapper signature**: `"this is ugly to define this type right in the signature. we should be using a type declared elsewhere"` → Extracted dedicated `SundayMeetingCardInput` interface for the mapper boundary contract.
