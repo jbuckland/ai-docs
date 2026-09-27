@@ -9,16 +9,17 @@ This document is a centralized, empirical ledger for tracking John's review anno
 
 ## Category Summary
 
-- **Type Safety:** 10 entries
+- **Type Safety:** 11 entries
   - *Boundary Casting & Type Evasion:* 4 entries
-  - *Domain Model Contracts & Index Signatures:* 3 entries
+  - *Domain Model Contracts & Index Signatures:* 4 entries
   - *Discriminated Unions & ViewItem Inheritance:* 3 entries
-- **Code Hygiene & Logic Clarity:** 11 entries
-  - *Active Feature Evolution & Zero Backward-Compatibility Shims:* 4 entries
+- **Code Hygiene & Logic Clarity:** 21 entries
+  - *Active Feature Evolution & Zero Backward-Compatibility Shims:* 6 entries
+  - *Service Architecture & Storage Consolidation:* 6 entries
   - *Control Flow & Ternary Expression Overuse:* 3 entries
-  - *Utility Colocation & Execution Flow:* 2 entries
+  - *Utility Colocation & Execution Flow:* 3 entries
   - *Separation of Presentation & Pure Logic:* 1 entry
-  - *Synthetic & Dummy Form State:* 1 entry
+  - *Synthetic & Dummy Form State:* 2 entries
 - **Styling & Theming:** 7 entries
   - *Primitive Inheritance & Style Duplication:* 4 entries
   - *Design System Tokens & Runtime CSS Custom Properties:* 3 entries
@@ -46,6 +47,7 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-19** [`myward`]: **Loose Record extension and unknown fields in domain interfaces**: `"this smells. Why do we have so many unknowns? why are we extending Record<string,unknown>?"` → Replaced `Record<string, unknown>` extension and `unknown` fields with explicit, strongly typed domain interface contracts.
 - **2026-09-19** [`myward`]: **Untyped announcement structures in domain models**: `"same comments as above"` → Defined a strongly typed `PublishedAnnouncement` interface with explicit `title` and `text` fields.
 - **2026-09-19** [`myward`]: **Permissive index signatures on canonical domain models**: `"why are we allowing arbitrary additional properties in these interfaces?"` → Removed `[key: string]: unknown` index signatures from canonical domain models in `sacrament.ts` to enforce strict property typing.
+- **2026-09-27** [`myward`]: **Anonymous complex object type declared inline in domain mapper signature**: `"this is ugly to define this type right in the signature. we should be using a type declared elsewhere"` → Extracted dedicated `SundayMeetingCardInput` interface for the mapper boundary contract.
 
 ## Type Safety / Discriminated Unions & ViewItem Inheritance
 
@@ -78,6 +80,17 @@ This document is a centralized, empirical ledger for tracking John's review anno
 - **2026-09-20** [`myward`]: **Type alias shim for renamed interface in active feature**: `"remove this alias, and just it as is"` → Removed `PulpitPronouns = GrammaticalPronouns` type alias and imported `GrammaticalPronouns` directly at call sites.
 - **2026-09-20** [`myward`]: **Re-export function alias on freshly moved utility**: `"again, remove this alias and just use the actual method."` → Removed `formatPulpitTime` alias and imported canonical `format12HourTime` from `core/utils/date-utils.ts` directly.
 - **2026-09-20** [`myward`]: **Standalone function exported alongside component service with redundant pass-through delegation method**: `"this functions seems like it should be part of the service, not an exported method. Why was it exported?" / "this feels odd. Why was this done this way?"` → Encapsulated the transformation logic directly inside `SacramentPulpitService.buildSteps`, eliminated the external standalone function, and removed the unnecessary delegation wrapper.
+- **2026-09-20** [`myward`]: **Deprecated backward-compatibility type alias preserved on moved storage models**: `"export type MeetingSnapshot = StorageMeetingSnapshot; {!if we should be using the other one, remove this one.}"` → Eliminated shadow `StorageMeetingSnapshot` and backward-compatibility alias, directly using canonical `MeetingSnapshot` from `core/domain/sacrament`.
+- **2026-09-27** [`myward`]: **Backward-compatibility aliases introduced on brand new unreleased feature**: `"why this alias?? avoid aliases for new features" / "another alias. No aliases in unreleased features"` → Eliminated `SundayMeetingViewItem = SacramentSundayCardViewItem`, `toSundayMeetingViewItem = toSacramentSundayCardViewItem`, and `createPlaceholderSundayItem` aliases on unreleased feature, standardizing directly on `SundayMeetingViewItem`.
+
+## Code Hygiene / Service Architecture & Storage Consolidation
+
+- **2026-09-20** [`myward`]: **Two-tier storage class indirection diverging from single-file data service pattern**: `"{!this file seems to be organized very differently than the other data.services. Evaluate the ways it doesn't match the other ones}"` → Consolidated standalone `SacramentStorage` directly into `SacramentDataService`, matching the standard Angular Firestore data service architecture across `core/data/` and actively deleting `sacrament-storage.ts`.
+- **2026-09-20** [`myward`]: **Feature facade executing direct Firestore persistence queries**: `"this feels like a data layer concern"` → Created `AnnouncementsDataService`, added `getCallingBusiness` to `CallingsDataService`, and routed all persistence queries out of `SacramentService`.
+- **2026-09-20** [`myward`]: **Static factory bypass and non-standard emulator integration test scaffold**: `"why do we need this?" / "let's just drop the whole integration test. that's not our normal pattern."` → Deleted unneeded integration test and removed `static fromClient` factory method from `SacramentDataService`.
+- **2026-09-20** [`myward`]: **Database record deserialization and dictionary mapping in domain models**: `"I know we just moved this here, but this really feels like a data layer concern. Turning unknown data into types objects, using magic strings"` → Moved Firestore document deserializers (`toStoredMeeting`, `toPrayersSection`, `toMusicSection`, `toAgendaItem`) out of the domain layer and encapsulated them as private methods/helpers in the data layer (`SacramentDataV2Service` / `SacramentDataService`).
+- **2026-09-20** [`myward`]: **Snapshot hydration and child data aggregation logic placed in feature service**: `"I mean this whole method feels like a data layer concern, to fill in child data in an object"` → Encapsulated meeting snapshot hydration directly at the persistence boundary in `SacramentDataService.getMeeting()`, deleting `enrichMeetingSnapshot` and unneeded data service dependencies from `SacramentService`.
+- **2026-09-20** [`myward`]: **Database collection path builder placed in domain model file**: `"why is this here? What is it for? this appears to be DB related, so why is it in the domain?"` → Removed Firestore collection path helper `callingNotePath` from `core/domain/calling.ts` and encapsulated it as a private helper inside `PeopleDataService` in `core/data/`.
 
 ## Code Hygiene / Separation of Presentation & Pure Logic
 
@@ -93,10 +106,12 @@ This document is a centralized, empirical ledger for tracking John's review anno
 
 - **2026-09-19** [`myward`]: **Duplicated common execution paths across save section branches**: `"dedupe the branches to have 'always run' code happen after the if block"` → Extracted `buildSectionPayload(section)` helper and unified common `saveSection.emit()` and dirty-clearing logic after section dispatch.
 - **2026-09-20** [`myward`]: **Time formatting utility placed in feature domain file**: `"should this be moved to date utils? or is this unique enough to be a one off?"` → Moved `format12HourTime` to `core/utils/date-utils.ts` with dedicated unit test coverage.
+- **2026-09-27** [`myward`]: **Redundant initials extraction utility declared in domain model**: `"this seems like it should be in a utils method. unless it's never used anywhere else"` → Removed redundant local `getInitials` implementation from `sacrament.ts` and reused canonical `getInitials` from `shared/utils/string.utils.ts`.
 
 ## Code Hygiene / Synthetic & Dummy Form State
 
 - **2026-09-19** [`myward`]: **Dummy synthetic objects used to back draft forms**: `"ah, I see. You just moved the smell somewhere else..."` → Eliminated synthetic empty domain objects (`id: ''`) used to back draft forms.
+- **2026-09-20** [`myward`]: **Fabricating synthetic domain entity with brittle string parsing and arbitrary defaults**: `"I dont like this. Why do we need to resort to string parsing to get first and last name??" / "this doesn't seem right. Why are we defaulting to 'Elders' for the group here?"` → Eliminated synthetic `Person` entity fabrication; routed unlinked/historical speaker names cleanly to `externalName` and `guest` role with `selectedMember` as `null`.
 
 ## Domain Modeling / Domain Semantics & UI Separation
 
