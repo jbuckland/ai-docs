@@ -9,26 +9,26 @@ This document is a centralized, empirical ledger for tracking John's review anno
 
 ## Active Tag Index
 
-- `domain-contracts`: 13 entries
-- `styling`: 12 entries
+- `domain-contracts`: 15 entries
+- `styling`: 14 entries
 - `type-safety`: 12 entries
-- `domain-semantics`: 9 entries
+- `domain-semantics`: 10 entries
+- `architecture`: 9 entries
+- `style-duplication`: 9 entries
 - `code-hygiene`: 8 entries
-- `architecture`: 7 entries
 - `data-layer`: 7 entries
-- `style-duplication`: 7 entries
-- `modular-components`: 6 entries
+- `modular-components`: 7 entries
 - `no-shims`: 5 entries
 - `utility-colocation`: 5 entries
 - `control-flow`: 4 entries
 - `css-tokens`: 4 entries
+- `presentation-logic`: 4 entries
 - `synthetic-state`: 3 entries
 - `view-items`: 3 entries
 - `zero-fallbacks`: 3 entries
 - `boundary-casting`: 2 entries
 - `discriminated-unions`: 2 entries
 - `naming`: 2 entries
-- `presentation-logic`: 2 entries
 - `signals`: 2 entries
 - `layout`: 1 entry
 - `specops`: 1 entry
@@ -38,8 +38,17 @@ This document is a centralized, empirical ledger for tracking John's review anno
 
 ## Log Entries
 
+### 2026-10-10
+
+- **2026-10-10** [`stick-together`] `[architecture, domain-contracts]`: **Ensuring API endpoints and request/response payloads adhere to flat routes and envelope patterns**: `"{!make sure the api's match my user rules}" / "{!does this pattern match my rules on routes?}"` in `implementation-plan-user-content-submissions.md` → Standardized all routes on flat camelCase structure with zero URL parameters (`POST /api/admin/deleteSubmission`), standard request/response envelopes (`ApiResponse<T>` with `null` data fallback), and canonical `SubmissionDetails` domain interface.
+- **2026-10-10** [`stick-together`] `[architecture, domain-contracts]`: **Enforcing TSyringe constructor dependency injection for service unit testability**: `"{!make sure the service remains unit testable by injecting the dependencies!}"` in `implementation-plan-user-content-submissions.md` → Refactored `SubmissionService` architecture to inject database, storage, and notification dependencies via TSyringe constructor tokens, preventing hardcoded singletons or `new` instantiations and ensuring 100% isolated unit test coverage via mocks.
+
 ### 2026-09-27
 
+- **2026-09-27** [`myward`] `[styling, style-duplication]`: **Adhering to strict style conventions by lifting composite banner strip to shared card component**: `"### Step 3: Style the Music Leadership Banner {!make sure this obeys all my styling rules}"` in `2-04-music-leadership.md` → Lifted shared `.card-roster-banner` to `styles/components/card.less` with `.banner-music` variant, reusing structure across leadership and music strips with zero fallback arguments in `var()` and canonical semantic design tokens.
+- **2026-09-27** [`myward`] `[domain-semantics, presentation-logic]`: **Proposing dynamic render-time calculation instead of inspecting stored meeting data**: `"no, at render time, we should just check the meeting data. at build time we should suggest or default to fast sunday when it's the first sunday of the month, but allow overriding."` in `ui-ux-board-review.md` → Refactored Fast Sunday handling so render time evaluates stored meeting data directly, reserving 1st-Sunday defaults for meeting creation/suggestion time with user override.
+- **2026-09-27** [`myward`] `[presentation-logic, modular-components]`: **Making entire composite card surface clickable despite nested interactive controls**: `"I don't love this. with how many other clickable items there are on a card, it's too easy to misclick then be taken to a totally tifferent screen that you have to back out of" / "I do like reducing the bulky buttons. let's use 'Edit Agenda' and 'Pulpit View' as the button text"` in `ui-ux-board-review.md` → Scoped navigation to dedicated footer actions labeled "Edit Agenda" and "Pulpit View", avoiding broad surface clicks that trigger accidental screen transitions.
+- **2026-09-27** [`myward`] `[styling, style-duplication]`: **Ad-hoc oversized page heading instead of standard global page header component**: `"let's try to make it match the 'people' and 'callings' page headers. There is definitly too much wasted vertical space currently"` in `ui-ux-board-review.md` → Standardized Sacrament page header on canonical `.page-header-bar` from `styles/components/page-header.less`, matching People and Callings, reclaiming vertical viewport space, and eliminating redundant heading styles.
 - **2026-09-27** [`myward`] `[styling, style-duplication]`: **Re-declaring global edit button inside component stylesheet**: `"//{!this sends red flags to me. I'm sure we have a global edit button defined somewhere that we should be using.}"` in `sunday-card.component.less` → Discovered existing `.btn-action, .btn-edit` in `buttons.less`, extended it with a `.btn-sm` compact variant, purged the local definition, and referenced global `.btn-edit.btn-sm` in template.
 - **2026-09-27** [`myward`] `[styling, style-duplication, modular-components]`: **Oversized component stylesheet containing un-lifted UI primitives**: `"//{!this fill is rather long, that's a red flag that we're probably duplicating style}"` in `sunday-card.component.less` → Lifted card header/footer bars (`.card-header-bar`, `.card-footer-bar`), card section labels, and state variants to `card.less`; lifted status dots (`.status-dot`), tag badges (`.badge-tag`), and count badges (`.badge-count`) to `badge.less`; lifted dashed slots (`.slot-empty`) to `agenda.less`; lifted notice banners (`.notice-banner`) to `panel.less`; lifted segmented controls (`.view-switch`, `.view-btn`) to `buttons.less`. Purged all duplicate blocks, reducing `sunday-card.component.less` by over 50%.
 - **2026-09-27** [`myward`] `[styling, style-duplication, zero-fallbacks]`: **Primitive re-declaration, var() fallbacks, and hardcoded colors in component LESS**: `"//{!this doesn't obey my styling rules. fix it}"` in `sunday-card.component.less` → Purged duplicated `.btn`, `.btn-*`, `.status-pill`, and `.avatar-placeholder` definitions; composed `.card .card-interactive` on host element; stripped all fallback values from `var()` calls and aligned with canonical design system tokens.

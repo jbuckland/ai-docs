@@ -29,6 +29,9 @@ Central Single Source of Truth (SSoT) for technical standards, architectural pat
 - **[jb-dev-scripts.instructions.md](file:///c:/stuff-john/github/ai-docs/instructions/workflow/jb-dev-scripts.instructions.md)**: Development scripts & automation.
 - **[jb-test-jasmine.instructions.md](file:///c:/stuff-john/github/ai-docs/instructions/workflow/jb-test-jasmine.instructions.md)**: Jasmine/Karma & Vitest testing standards.
 
+## Workstation & IDE Configuration
+- **[antigravity-ide-setup.md](file:///c:/stuff-john/github/ai-docs/instructions/workstation/antigravity-ide-setup.md)**: Antigravity IDE configuration, keybindings, and editor settings.
+
 ## Central Skills
 Registered globally in `~/.gemini/config/skills.json`:
 - **[annotations](file:///c:/stuff-john/github/ai-docs/skills/annotations/SKILL.md)**: Process inline annotations (`{! ... }`); questions are questions, not instructions.
